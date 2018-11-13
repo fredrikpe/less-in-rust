@@ -21,7 +21,7 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     pub fn move_up(&mut self, lines: i64) {
-        for i in 0..lines {
+        for _ in 0..lines {
             self.move_up_one();
         }
     }
@@ -30,9 +30,8 @@ impl<R: Read + Seek> BiBufReader<R> {
         if line_offset > 0 {
             let mut s = String::new();
             for _ in 0..line_offset {
-                
                 self.position += 1;
-                self.reader.read_line(&mut s);
+                let _ = self.reader.read_line(&mut s);
             }
         } else if line_offset < 0 {
             self.move_up(-line_offset);

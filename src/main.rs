@@ -1,9 +1,9 @@
 extern crate clap;
 extern crate termion;
 
+use termion::screen::AlternateScreen;
 use termion::raw::IntoRawMode;
 
-use std::io::BufReader;
 use std::fs::File;
 use std::result::Result;
 use std::io::stdout;
@@ -33,12 +33,11 @@ fn main() {
                                .required(true))
                           .get_matches();
 
-    let mut stdout = stdout().into_raw_mode().unwrap();
 
     let input_file = matches.value_of("input_file");
     let file = File::open(input_file.unwrap());
 
-    let mut fileb = match file {
+    let fileb = match file {
         Ok(t) => std::io::BufReader::new(t),
         Err(_) => return (),
     };
@@ -61,7 +60,6 @@ impl State {
         match input_event {
             LEvent::LineUp => self.offset = -1,
             LEvent::LineDown => {
-                print!("asdfsdffjfjfjf");
                 self.offset = 1
             },
             LEvent::Quit => self.quit = true,
@@ -72,17 +70,21 @@ impl State {
 
 fn run<R: Read + Seek>(bi_reader: &mut file_buffer::BiBufReader<R>) -> Result<(), ()> {
 
+    let mut printer = printer::Printer { 
+        out: AlternateScreen::from(stdout().into_raw_mode().unwrap())
+    };
     let mut state = State { offset: 0, quit: false };
 
     loop {
+        let _ = printer.print_screen(state.offset, bi_reader);
+
         let input_event = input::get_input();
+        printer.flush();
         state.update(input_event);
 
         if state.quit {
             break;
         }
-
-        let _ = printer::print_screen(state.offset, bi_reader);
     }
 
     Ok(())

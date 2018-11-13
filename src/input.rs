@@ -15,13 +15,11 @@ pub enum LEvent {
     NoOp,
 }
 
-
 pub fn get_input() -> LEvent {
     let stdin = stdin();
     for c in stdin.events() {
         return match c.unwrap() {
             Event::Key(Key::Char('q')) => {
-                println!("quitpressesd");
                 LEvent::Quit
             }
 
