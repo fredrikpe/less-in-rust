@@ -1,9 +1,7 @@
-
-
 use std::cmp::min;
-use std::io::{Seek, SeekFrom, Read, Result};
-use std::io::BufReader;
 use std::io::BufRead;
+use std::io::BufReader;
+use std::io::{Read, Result, Seek, SeekFrom};
 
 static LF_BYTE: u8 = '\n' as u8;
 static CR_BYTE: u8 = '\r' as u8;
@@ -12,9 +10,22 @@ pub struct BiBufReader<R> {
     pub reader: BufReader<R>,
     pub position: usize,
     pub size: usize,
+    pub current_offset: i32,
 }
 
 impl<R: Read + Seek> BiBufReader<R> {
+    pub fn move_to_command(&mut self, byte_offset: i32, action: LEvent) {
+        match action {
+            LEvent::NoOp => self.move_to_offset(byte_offset),
+            _ => self.move_to_offset(byte_offset),
+        }
+    }
+
+    pub fn move_to_offset(&mut self, offset: i32) {
+        self.reader.seek(SeekFrom::Current(offset - self.current_offset));
+        self.current_offset = offset - self.current_offset;
+    }
+        
     pub fn read_line(&mut self, buf: &mut String) -> Result<usize> {
         self.position += self.reader.read_line(buf)?;
         Ok(self.position as usize)
@@ -31,7 +42,11 @@ impl<R: Read + Seek> BiBufReader<R> {
             let mut s = String::new();
             for _ in 0..line_offset {
                 self.position += 1;
-                let _ = self.reader.read_line(&mut s);
+                eprintln!("pos {}", self.position);
+                match self.reader.read_line(&mut s) {
+                    Ok(d) => eprintln!("as{}", d),
+                    Err(d) => eprintln!("ew{}", d),
+                }
             }
         } else if line_offset < 0 {
             self.move_up(-line_offset);
@@ -79,11 +94,11 @@ impl<R: Read + Seek> BiBufReader<R> {
                             }
 
                             match self.reader.seek(SeekFrom::Current(offset as i64)) {
-                                Ok(_)  => {
+                                Ok(_) => {
                                     self.position += offset as usize;
 
                                     break 'outer;
-                                },
+                                }
 
                                 Err(_) => {
                                     println!("asdf");
@@ -95,11 +110,9 @@ impl<R: Read + Seek> BiBufReader<R> {
                 }
                 Err(_) => {
                     println!("ERROr line");
-                    return ()
+                    return ();
                 }
             }
         }
     }
 }
-
-

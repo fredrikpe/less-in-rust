@@ -1,0 +1,13 @@
+   Compiling less2 v0.1.0 (/home/fredrik/git/fredrikpe/less2)
+error[E0425]: cannot find value `t` in this scope
+  --> src/main.rs:43:26
+   |
+43 |     let metadata = match t.metadata() {
+   |                          ^ not found in this scope
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0425`.
+error: Could not compile `less2`.
+
+To learn more, run the command again with --verbose.
