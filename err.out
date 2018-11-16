@@ -1,83 +1,31 @@
-    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
-     Running `target/debug/less2 --input_file src/main.rs`
-DownOneLine
-btnl 18
-DownOneLine
-btnl 21
-DownOneLine
-btnl 0
-DownOneLine
-btnl 30
-DownOneLine
-btnl 37
-DownOneLine
-btnl 0
-DownOneLine
-btnl 18
-DownOneLine
-btnl 20
-DownOneLine
-btnl 18
-DownOneLine
-btnl 18
-DownOneLine
-btnl 24
-DownOneLine
-btnl 0
-DownOneLine
-btnl 21
-DownOneLine
-btnl 0
-DownOneLine
-btnl 16
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-DownOneLine
-btnl 2
-Quit
+   Compiling less2 v0.1.0 (/home/fredrik/git/fredrikpe/less2)
+warning: value assigned to `bytes_read` is never read
+  --> src/file_buffer.rs:82:17
+   |
+82 |         let mut bytes_read: i64 = 0;
+   |                 ^^^^^^^^^^
+   |
+   = note: #[warn(unused_assignments)] on by default
+
+warning: method is never used: `first_newline_offset`
+  --> src/file_buffer.rs:63:5
+   |
+63 |     fn first_newline_offset(&mut self, s: &str) -> usize {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: #[warn(dead_code)] on by default
+
+warning: function is never used: `nth_grapheme_offset`
+ --> src/string_util.rs:3:1
+  |
+3 | pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function is never used: `find_newline`
+  --> src/string_util.rs:50:1
+   |
+50 | pub fn find_newline(s: &str) -> Option<usize> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    Finished release [optimized] target(s) in 1.99s
+     Running `target/release/less2 --input_file src/main.rs`

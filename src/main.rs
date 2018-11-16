@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate termion;
+extern crate unicode_segmentation;
 
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
@@ -15,6 +16,7 @@ use clap::{App, Arg};
 mod file_buffer;
 mod input;
 mod printer;
+mod string_util;
 
 use input::LEvent;
 
@@ -39,7 +41,7 @@ fn main() {
         Err(_) => return (),
     };
 
-    let metadata = match file.metadata() {
+    let _metadata = match file.metadata() {
         Ok(m) => m,
         Err(_) => return (),
     };
@@ -54,17 +56,12 @@ fn main() {
     }
 }
 
-struct FilePosition {
-    bytes: i32,
-}
-
 struct State {
     quit: bool,
 }
 
 impl State {
     pub fn update(&mut self, input_event: &LEvent) {
-        eprintln!("{:?}", input_event);
         match input_event {
             LEvent::UpOneLine => (),
             LEvent::DownOneLine => (),
@@ -76,7 +73,10 @@ impl State {
     }
 }
 
-fn run<R: Read + Seek>(state: &mut State, bi_reader: &mut file_buffer::BiBufReader<R>) -> Result<(), ()> {
+fn run<R: Read + Seek>(
+    state: &mut State,
+    bi_reader: &mut file_buffer::BiBufReader<R>,
+) -> Result<(), ()> {
     let mut printer = printer::Printer {
         out: AlternateScreen::from(stdout().into_raw_mode().unwrap()),
     };
@@ -84,7 +84,7 @@ fn run<R: Read + Seek>(state: &mut State, bi_reader: &mut file_buffer::BiBufRead
     let mut input_event = LEvent::NoOp;
 
     loop {
-        bi_reader.move_to_command(&input_event);
+        let _ = bi_reader.move_to_command(&input_event);
 
         let _ = printer.print_screen(bi_reader);
 

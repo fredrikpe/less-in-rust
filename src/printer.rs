@@ -2,10 +2,11 @@ use file_buffer::BiBufReader;
 
 use termion::screen::AlternateScreen;
 use termion::terminal_size;
+use unicode_segmentation::UnicodeSegmentation;
 
 use std::io::{Read, Seek, Write};
 
-use file_buffer;
+use string_util;
 
 pub struct Printer<W: Write> {
     pub out: AlternateScreen<W>,
@@ -16,9 +17,7 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn print_screen<R: Read + Seek>(&mut self, reader: &mut BiBufReader<R>)
-        -> Result<(), ()>
-    {
+    pub fn print_screen<R: Read + Seek>(&mut self, reader: &mut BiBufReader<R>) -> Result<(), ()> {
         self.clear_screen();
 
         let mut screen_line_number: u16 = 1;
@@ -33,28 +32,28 @@ impl<W: Write> Printer<W> {
         };
 
         write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
-        let mut char_count = 0;
-        for c in page.chars() {
+
+        let mut grapheme_count = 0;
+        for (_, grapheme) in UnicodeSegmentation::grapheme_indices(page, true) {
             if screen_line_number >= screen_height {
                 break;
             }
 
-            char_count += 1;
-            // An estimate
-            if char_count >= screen_width {
+            if grapheme_count >= screen_width as usize {
+                grapheme_count = 0;
                 screen_line_number += 1;
-                char_count = 0;
                 writeln!(self.out);
                 write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
             }
 
-            if file_buffer::is_new_line(c) {
+            if string_util::is_newline(grapheme) {
+                grapheme_count = 0;
                 screen_line_number += 1;
-                char_count = 0;
                 writeln!(self.out);
                 write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
             } else {
-                write!(self.out, "{}", c);
+                grapheme_count += 1;
+                write!(self.out, "{}", grapheme);
             }
         }
 
