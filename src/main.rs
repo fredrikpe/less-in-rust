@@ -39,20 +39,16 @@ fn main() {
         Err(_) => return (),
     };
 
-    let metadata = match t.metadata() {
+    let metadata = match file.metadata() {
         Ok(m) => m,
         Err(_) => return (),
     };
 
-    let state = State { byte_offset: 0, file_size: m.len(), quit: false };
+    let mut state = State { quit: false };
 
-    let mut bi_reader = file_buffer::BiBufReader {
-        reader: std::io::BufReader::new(file),
-        position: 0,
-        size: 1024,
-    };
+    let mut bi_reader = file_buffer::BiBufReader::new(std::io::BufReader::new(file));
 
-    match run(state, &mut bi_reader) {
+    match run(&mut state, &mut bi_reader) {
         Ok(()) => return (),
         Err(()) => return (),
     }
@@ -63,28 +59,24 @@ struct FilePosition {
 }
 
 struct State {
-    byte_offset: i64,
     quit: bool,
 }
 
 impl State {
-    pub fn update(&mut self, input_event: LEvent) {
+    pub fn update(&mut self, input_event: &LEvent) {
         eprintln!("{:?}", input_event);
         match input_event {
-            LEvent::UpOneLine => self.offset = -1,
-            LEvent::DownOneLine => {
-                self.offset = 1;
-            }
+            LEvent::UpOneLine => (),
+            LEvent::DownOneLine => (),
             LEvent::Quit => self.quit = true,
             _ => {
                 eprintln!("NoOp");
-                self.offset = 0;
             }
         }
     }
 }
 
-fn run<R: Read + Seek>(state: State, bi_reader: &mut file_buffer::BiBufReader<R>) -> Result<(), ()> {
+fn run<R: Read + Seek>(state: &mut State, bi_reader: &mut file_buffer::BiBufReader<R>) -> Result<(), ()> {
     let mut printer = printer::Printer {
         out: AlternateScreen::from(stdout().into_raw_mode().unwrap()),
     };
@@ -92,12 +84,13 @@ fn run<R: Read + Seek>(state: State, bi_reader: &mut file_buffer::BiBufReader<R>
     let mut input_event = LEvent::NoOp;
 
     loop {
-        bi_reader.move_to_command(state.byte_offset, action);
+        bi_reader.move_to_command(&input_event);
+
         let _ = printer.print_screen(bi_reader);
 
         input_event = input::get_input();
         printer.flush();
-        state.update(input_event);
+        state.update(&input_event);
 
         if state.quit {
             break;

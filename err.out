@@ -1,13 +1,83 @@
-   Compiling less2 v0.1.0 (/home/fredrik/git/fredrikpe/less2)
-error[E0425]: cannot find value `t` in this scope
-  --> src/main.rs:43:26
-   |
-43 |     let metadata = match t.metadata() {
-   |                          ^ not found in this scope
-
-error: aborting due to previous error
-
-For more information about this error, try `rustc --explain E0425`.
-error: Could not compile `less2`.
-
-To learn more, run the command again with --verbose.
+    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/less2 --input_file src/main.rs`
+DownOneLine
+btnl 18
+DownOneLine
+btnl 21
+DownOneLine
+btnl 0
+DownOneLine
+btnl 30
+DownOneLine
+btnl 37
+DownOneLine
+btnl 0
+DownOneLine
+btnl 18
+DownOneLine
+btnl 20
+DownOneLine
+btnl 18
+DownOneLine
+btnl 18
+DownOneLine
+btnl 24
+DownOneLine
+btnl 0
+DownOneLine
+btnl 21
+DownOneLine
+btnl 0
+DownOneLine
+btnl 16
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+DownOneLine
+btnl 2
+Quit
