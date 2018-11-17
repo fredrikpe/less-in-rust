@@ -1,27 +1,21 @@
-    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
-     Running `target/debug/less2 --input_file src/main.rs`
-cur_pos: 0
-cur_pos: 19
-nlo 19
-cur_pos: 0
-cur_pos: 19
-nlo 19
-cur_pos: 0
-cur_pos: 19
-nlo 19
-cur_pos: 0
-cur_pos: 19
-cur_pos: 41
-cur_pos: 76
-nlo 35
-cur_pos: 41
-nlo 22
-cur_pos: 19
-nlo 19
-cur_pos: 0
-nlo 0
-cur_pos: 0
-nlo 0
-cur_pos: 0
-nlo 0
-cur_pos: 0
+   Compiling less2 v0.1.0 (/home/fredrik/git/fredrikpe/less2)
+warning: unused import: `unicode_segmentation::GraphemeIndices`
+ --> src/string_util.rs:1:5
+  |
+1 | use unicode_segmentation::GraphemeIndices;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: #[warn(unused_imports)] on by default
+
+error[E0599]: no method named `fill_back_buf` found for type `&mut file_buffer::BiBufReader<R>` in the current scope
+  --> src/file_buffer.rs:48:24
+   |
+48 |         let buf = self.fill_back_buf()?;
+   |                        ^^^^^^^^^^^^^
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0599`.
+error: Could not compile `less2`.
+
+To learn more, run the command again with --verbose.

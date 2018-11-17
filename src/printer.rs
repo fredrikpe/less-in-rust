@@ -35,11 +35,11 @@ impl<W: Write> Printer<W> {
             }
         };
 
-        write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
+        write!(self.out, "{}", termion::cursor::Goto(1, 1));
 
         let mut grapheme_count = 0;
-        for (_, grapheme) in UnicodeSegmentation::grapheme_indices(page, true) {
-            if screen_line_number >= screen_height {
+        for grapheme in UnicodeSegmentation::graphemes(page, true) {
+            if screen_line_number >= screen_height - 1 {
                 break;
             }
 
@@ -47,24 +47,28 @@ impl<W: Write> Printer<W> {
                 grapheme_count = 0;
                 screen_line_number += 1;
                 writeln!(self.out);
-                write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
+                write!(self.out, "\r");
             }
 
             if string_util::is_newline(grapheme) {
                 grapheme_count = 0;
                 screen_line_number += 1;
                 writeln!(self.out);
-                write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
+                write!(self.out, "\r");
             } else {
                 grapheme_count += 1;
                 write!(self.out, "{}", grapheme);
             }
         }
 
-        writeln!(self.out);
-        write!(self.out, "{}", termion::cursor::Goto(1, screen_line_number));
-
+        self.write_command_line(screen_line_number);
         Ok(())
+    }
+
+    fn write_command_line(&mut self, line_num: u16) {
+        //writeln!(self.out);
+        //write!(self.out, "{}", termion::cursor::Goto(1, line_num));
+        write!(self.out, ":asdfasd");
     }
 
     fn clear_screen(&mut self) {

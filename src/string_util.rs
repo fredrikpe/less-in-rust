@@ -41,16 +41,23 @@ where
     None
 }
 
-pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
+pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> Option<usize> {
     for (index, (offset, grapheme)) in
         UnicodeSegmentation::grapheme_indices(buf, true).enumerate()
     {
         if is_newline(grapheme) || index + 1 >= screen_width {
-            return Some(offset + grapheme_size(grapheme));
+            n -= 1;
+            if n == 0 {
+                return Some(offset + grapheme_size(grapheme));
+            }
         }
     }
 
     None
+}
+
+pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
+    nth_newline_wrapped(1, buf, screen_width)
 }
 
 pub fn last_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
@@ -77,25 +84,27 @@ pub fn last_newline_offset(buf: &str) -> Option<usize> {
     last
 }
 
-pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
-    let mut last = Some(0);
-    let mut snd_last = 0;
+pub fn nth_last_newline_wrapped(n: usize, buf: &str, screen_width: usize) -> usize {
+    let mut offsets = Vec::new();
     let mut grapheme_count = 0;
 
     for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
         grapheme_count += 1;
-        if is_newline(grapheme) {
+        if is_newline(grapheme) || grapheme_count >= screen_width {
             grapheme_count = 0;
-            snd_last = last.unwrap();
-            last = Some(offset + grapheme_size(grapheme));
-        } else if grapheme_count >= screen_width {
-            grapheme_count = 0;
-            snd_last = last.unwrap();
-            last = Some(offset + grapheme_size(grapheme));
+            offsets.push(Some(offset + grapheme_size(grapheme)));
         }
     }
 
-    snd_last
+    return if offsets.len() < n {
+        0
+    } else {
+        offsets[offsets.len() - n].unwrap()
+    };
+}
+
+pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
+    nth_last_newline_wrapped(2, buf, screen_width)
 }
 
 pub fn is_newline(grapheme: &str) -> bool {
@@ -154,6 +163,20 @@ mod tests {
         assert_eq!(snd_last_newline_wrapped(u, 3), 1);
         assert_eq!(snd_last_newline_wrapped(v, 3), 3);
     }
+
+    #[test]
+    fn test_nth_last_newline_wrapped() {
+        let s = "\n";
+        let t = "";
+        let u = "\naa\n";
+        let v = "aaaaaa";
+        let w = "\n\n\n\n\n\n\n\n\n\n";
+        assert_eq!(nth_last_newline_wrapped(2, s, 3), 0);
+        assert_eq!(nth_last_newline_wrapped(2, t, 3), 0);
+        assert_eq!(nth_last_newline_wrapped(2, u, 3), 1);
+        assert_eq!(nth_last_newline_wrapped(2, v, 3), 3);
+        assert_eq!(nth_last_newline_wrapped(10, w, 3), 1);
+    }
     
     #[test]
     fn test_first_newline_wrapped() {
@@ -165,6 +188,20 @@ mod tests {
         assert_eq!(first_newline_wrapped(t, 3), None);
         assert_eq!(first_newline_wrapped(u, 3), Some(1));
         assert_eq!(first_newline_wrapped(v, 3), Some(3));
+    }
+    
+    #[test]
+    fn test_nth_newline_wrapped() {
+        let s = "\n";
+        let t = "";
+        let u = "\naa\n";
+        let v = "aaaaaa";
+        let w = "\n\n\n\n\n\n\n\n";
+        assert_eq!(nth_newline_wrapped(1, s, 3), Some(1));
+        assert_eq!(nth_newline_wrapped(1, t, 3), None);
+        assert_eq!(nth_newline_wrapped(1, u, 3), Some(1));
+        assert_eq!(nth_newline_wrapped(1, v, 3), Some(3));
+        assert_eq!(nth_newline_wrapped(5, w, 3), Some(5));
     }
 }
 
