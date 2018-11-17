@@ -17,7 +17,10 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn print_screen<R: Read + Seek>(&mut self, reader: &mut BiBufReader<R>) -> Result<(), ()> {
+    pub fn print_screen<R: Read + Seek>(
+        &mut self,
+        reader: &mut BiBufReader<R>,
+    ) -> Result<(), ()> {
         self.clear_screen();
 
         let mut screen_line_number: u16 = 1;

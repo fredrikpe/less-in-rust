@@ -15,6 +15,7 @@ use clap::{App, Arg};
 
 mod file_buffer;
 mod input;
+mod line_num_cache;
 mod printer;
 mod string_util;
 
