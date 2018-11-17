@@ -94,7 +94,6 @@ pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
             last = Some(offset + grapheme_size(grapheme));
         }
     }
-    eprintln!("s {}, l {:?}", snd_last, last);
 
     snd_last
 }

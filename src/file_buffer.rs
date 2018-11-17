@@ -8,6 +8,7 @@ use input::LEvent;
 use line_num_cache::{LineNumCache, LineNum};
 use string_util;
 
+
 pub struct BiBufReader<R> {
     pub reader: BufReader<R>,
     pub page_string: String,
@@ -59,38 +60,40 @@ impl<R: Read + Seek> BiBufReader<R> {
         }
     }
 
+    fn fill_back_buf(&mut self) -> Result<Vec<u8>> {
+        let size = std::cmp::min(self.search_buf_size(),
+                                 self.reader.seek(SeekFrom::Current(0))? as usize);
+
+        let mut buf = vec![0; size];
+        let new_pos = self.reader.seek(SeekFrom::Current(-(size as i64)))?;
+
+        let bytes_read = self.reader.read(&mut buf[..size])?;
+        debug_assert!(bytes_read as u64 == size as u64);
+
+        Ok(buf)
+    }
+
     fn up_one_line(&mut self) -> Result<()> {
-        self.pcur_pos()?;
-        let search_len = self.back_offset()? as usize;
-
-        let mut buf = vec![0; search_len];
-
-        debug_assert!(search_len as u64 == self.reader.seek(SeekFrom::Current(0))?);
-
-        let new_pos = self.reader.seek(SeekFrom::Current(-(search_len as i64)))?;
-
-        debug_assert!(new_pos == 0);
-
-        let bytes_read = self.reader.read(&mut buf[..search_len])?;
-
-        debug_assert!(bytes_read as u64 == search_len as u64);
+        let mut buf = self.fill_back_buf()?;
+        let size = buf.len();
 
         unsafe {
-            let start = match string_util::last_newline_offset(
-                str::from_utf8_unchecked(&buf)) {
-                Some(ofs) => {
-                    eprintln!("prev newline offset{}", ofs);
-                    search_len - ofs
-                }
-                None => 0,
-            };
-            eprintln!("start {}", start);
+            //let start = match string_util::last_newline_offset(
+                //str::from_utf8_unchecked(&buf)) {
+                //Some(ofs) => {
+                    //eprintln!("prev newline offset{}", ofs);
+                    //search_len - ofs
+                //}
+                //None => 0,
+            //};
+            //eprintln!("start {}", start);
 
             let (screen_width, _) = terminal_size().unwrap();
 
-            let offset = search_len as i64 - start as i64 - 
+            let start = 0;
+            let offset = size as i64 - start as i64 - 
                 string_util::snd_last_newline_wrapped(
-                str::from_utf8_unchecked(&buf[start..search_len]),
+                str::from_utf8_unchecked(&buf[start..]),
                 screen_width as usize,
             ) as i64;
             eprintln!("nlo {}", offset);
@@ -101,7 +104,6 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     fn down_one_line(&mut self) -> Result<()> {
-        self.pcur_pos()?;
         let size: i64 = 1024;
         let mut buf = vec![0; size as usize];
 
@@ -162,6 +164,7 @@ impl<R: Read + Seek> BiBufReader<R> {
 
 
     pub fn page(&mut self) -> Result<&str> {
+        self.pcur_pos()?;
         let page_size: i64 = self.page_size();
         self.page_string.clear();
         self.page_string = String::from_utf8_lossy(&vec![0; page_size as usize]).to_string();
@@ -181,7 +184,12 @@ impl<R: Read + Seek> BiBufReader<R> {
         Ok(&self.page_string[..])
     }
 
+    pub fn search_buf_size(&self) -> usize {
+        4096
+    }
+    
     pub fn page_size(&mut self) -> i64 {
-        2000
+        let (screen_width, screen_height) = terminal_size().unwrap();
+        screen_width as i64 * screen_height as i64 * 4 // 4 is max utf8 char size
     }
 }
