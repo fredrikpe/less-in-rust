@@ -42,10 +42,12 @@ where
 }
 
 pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> Option<usize> {
-    for (index, (offset, grapheme)) in
-        UnicodeSegmentation::grapheme_indices(buf, true).enumerate()
+    let mut grapheme_count = 0;
+    for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true)
     {
-        if is_newline(grapheme) || index + 1 >= screen_width {
+        grapheme_count += 1;
+        if is_newline(grapheme) || grapheme_count >= screen_width {
+            grapheme_count = 0;
             n -= 1;
             if n == 0 {
                 return Some(offset + grapheme_size(grapheme));
@@ -97,8 +99,10 @@ pub fn nth_last_newline_wrapped(n: usize, buf: &str, screen_width: usize) -> usi
     }
 
     return if offsets.len() < n {
+        eprintln!("nth 0");
         0
     } else {
+        eprintln!("nth {}", offsets[offsets.len() - n].unwrap());
         offsets[offsets.len() - n].unwrap()
     };
 }
@@ -197,11 +201,12 @@ mod tests {
         let u = "\naa\n";
         let v = "aaaaaa";
         let w = "\n\n\n\n\n\n\n\n";
+        let x = "\naaaa\naa\n";
         assert_eq!(nth_newline_wrapped(1, s, 3), Some(1));
         assert_eq!(nth_newline_wrapped(1, t, 3), None);
         assert_eq!(nth_newline_wrapped(1, u, 3), Some(1));
         assert_eq!(nth_newline_wrapped(1, v, 3), Some(3));
-        assert_eq!(nth_newline_wrapped(5, w, 3), Some(5));
+        assert_eq!(nth_newline_wrapped(2, x, 3), Some(4));
     }
 }
 

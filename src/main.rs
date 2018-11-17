@@ -18,6 +18,7 @@ mod input;
 mod line_num_cache;
 mod printer;
 mod string_util;
+mod screen;
 
 use input::LEvent;
 
