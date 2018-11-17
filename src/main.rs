@@ -17,8 +17,8 @@ mod file_buffer;
 mod input;
 mod line_num_cache;
 mod printer;
-mod string_util;
 mod screen;
+mod string_util;
 
 use input::LEvent;
 
@@ -86,17 +86,38 @@ fn run<R: Read + Seek>(
     let mut input_event = LEvent::NoOp;
 
     loop {
-        let _ = bi_reader.move_to_command(&input_event);
+        if let Err(e) = update_reader(bi_reader, &input_event) {
+            eprintln!("Error in update_reader: {}", e);
+        }
 
+        eprintln!(".");
         let _ = printer.print_screen(bi_reader);
 
         input_event = input::get_input();
-        printer.flush();
+
         state.update(&input_event);
 
         if state.quit {
             break;
         }
+    }
+
+    Ok(())
+}
+
+fn update_reader<R: Read + Seek>(
+    reader: &mut file_buffer::BiBufReader<R>,
+    action: &LEvent,
+) -> Result<(), std::io::Error> {
+    match action {
+        LEvent::UpOneLine => reader.up_n_lines(1)?,
+        LEvent::DownOneLine => reader.down_n_lines(1)?,
+        LEvent::DownHalfScreen => reader.down_n_lines(screen::screen_height_half())?,
+        LEvent::UpHalfScreen => reader.up_n_lines(screen::screen_height_half())?,
+        LEvent::DownOneScreen => reader.down_n_lines(screen::screen_height())?,
+        LEvent::UpOneScreen => reader.up_n_lines(screen::screen_height())?,
+        LEvent::NoOp => (),
+        _ => (),
     }
 
     Ok(())

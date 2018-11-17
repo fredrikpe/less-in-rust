@@ -1,5 +1,3 @@
-
-
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct LineNum {
     pub num: i32,
@@ -44,7 +42,7 @@ impl LineNumCache {
         let mut distance = std::i64::MAX;
         for i in 0..24 {
             if let Some(ln) = self.line_nums[i] {
-                let d =  ln.offset as i64 - offset as i64;
+                let d = ln.offset as i64 - offset as i64;
                 if d.abs() < distance {
                     distance = d.abs();
                     closest = Some((ln, d));
@@ -54,7 +52,7 @@ impl LineNumCache {
         closest
     }
 
-    // TODO 
+    // TODO
     fn add_important(&mut self, line_num: LineNum) {
         self.line_nums[0] = Some(line_num)
     }
@@ -70,7 +68,6 @@ impl LineNumCache {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,24 +75,33 @@ mod tests {
     #[test]
     fn s() {
         let mut s = LineNumCache::new();
-        s.add(LineNum {num: 24, offset: 34});
+        s.add(LineNum {
+            num: 24,
+            offset: 34,
+        });
 
         assert_eq!(s.line_nums[0].is_some(), true);
         assert_eq!(s.line_nums[1].is_none(), true);
     }
- 
+
     #[test]
     fn closest_none() {
         let mut s = LineNumCache::new();
         assert!(s.closest(0).is_none());
-    }   
+    }
 
     #[test]
     fn closest() {
         let mut s = LineNumCache::new();
-        let l = LineNum {num: 24, offset: 34};
-        let m = LineNum {num: 8, offset: 2};
-        let n = LineNum {num: 389, offset: 1000};
+        let l = LineNum {
+            num: 24,
+            offset: 34,
+        };
+        let m = LineNum { num: 8, offset: 2 };
+        let n = LineNum {
+            num: 389,
+            offset: 1000,
+        };
         s.add(l);
         s.add(m);
         s.add(n);
@@ -103,7 +109,5 @@ mod tests {
         assert_eq!(s.closest(999), Some((n, 1)));
         assert_eq!(s.closest(10), Some((m, -8)));
         assert_eq!(s.closest(30), Some((l, 4)));
-    }   
+    }
 }
-
-

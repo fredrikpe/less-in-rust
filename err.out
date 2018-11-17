@@ -1,71 +1,95 @@
    Compiling less2 v0.1.0 (/home/fredrik/git/fredrikpe/less2)
+warning: unused import: `input::LEvent`
+ --> src/file_buffer.rs:7:5
+  |
+7 | use input::LEvent;
+  |     ^^^^^^^^^^^^^
+  |
+  = note: #[warn(unused_imports)] on by default
+
+warning: unused import: `screen`
+ --> src/file_buffer.rs:9:5
+  |
+9 | use screen;
+  |     ^^^^^^
+
 warning: unused import: `unicode_segmentation::GraphemeIndices`
  --> src/string_util.rs:1:5
   |
 1 | use unicode_segmentation::GraphemeIndices;
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: #[warn(unused_imports)] on by default
 
 warning: unused variable: `size`
-  --> src/file_buffer.rs:78:19
+  --> src/file_buffer.rs:51:19
    |
-78 |         let (buf, size) = self.make_buf_down()?;
+51 |         let (buf, size) = self.make_buf_down()?;
    |                   ^^^^ help: consider using `_size` instead
    |
    = note: #[warn(unused_variables)] on by default
 
 warning: value assigned to `bytes_read` is never read
-   --> src/file_buffer.rs:103:17
-    |
-103 |         let mut bytes_read: i64 = 0;
-    |                 ^^^^^^^^^^
-    |
-    = note: #[warn(unused_assignments)] on by default
+  --> src/file_buffer.rs:75:17
+   |
+75 |         let mut bytes_read: i64 = 0;
+   |                 ^^^^^^^^^^
+   |
+   = note: #[warn(unused_assignments)] on by default
 
 warning: unused variable: `e`
-   --> src/file_buffer.rs:117:17
-    |
-117 |             Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, "from tfu8")),
-    |                 ^ help: consider using `_e` instead
+  --> src/file_buffer.rs:89:17
+   |
+89 |             Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, "from tfu8")),
+   |                 ^ help: consider using `_e` instead
 
 warning: unused variable: `new_pos`
-   --> src/file_buffer.rs:126:13
+   --> src/file_buffer.rs:100:13
     |
-126 |         let new_pos = self.reader.seek(SeekFrom::Current(-(size as i64)))?;
+100 |         let new_pos = self.reader.seek(SeekFrom::Current(-(size as i64)))?;
     |             ^^^^^^^ help: consider using `_new_pos` instead
 
 warning: unused variable: `bytes_read`
-   --> src/file_buffer.rs:128:13
+   --> src/file_buffer.rs:102:13
     |
-128 |         let bytes_read = self.reader.read(&mut buf[..size])?;
+102 |         let bytes_read = self.reader.read(&mut buf[..size])?;
     |             ^^^^^^^^^^ help: consider using `_bytes_read` instead
 
-warning: unused variable: `line_num`
-  --> src/printer.rs:68:38
+warning: unused variable: `reader`
+  --> src/printer.rs:77:9
    |
-68 |     fn write_command_line(&mut self, line_num: u16) {
-   |                                      ^^^^^^^^ help: consider using `_line_num` instead
+77 |         reader: &mut BiBufReader<R>,
+   |         ^^^^^^ help: consider using `_reader` instead
 
 warning: field is never used: `line_num_cache`
-  --> src/file_buffer.rs:16:5
+  --> src/file_buffer.rs:15:5
    |
-16 |     line_num_cache: LineNumCache,
+15 |     line_num_cache: LineNumCache,
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: #[warn(dead_code)] on by default
 
 warning: method is never used: `prev`
-  --> src/line_num_cache.rs:27:5
+  --> src/line_num_cache.rs:25:5
    |
-27 |     pub fn prev(&mut self, offset: usize) -> Option<(LineNum, i64)> {
+25 |     pub fn prev(&mut self, offset: usize) -> Option<(LineNum, i64)> {
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: method is never used: `closest`
-  --> src/line_num_cache.rs:42:5
+  --> src/line_num_cache.rs:40:5
    |
-42 |     pub fn closest(&mut self, offset: usize) -> Option<(LineNum, i64)> {
+40 |     pub fn closest(&mut self, offset: usize) -> Option<(LineNum, i64)> {
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method is never used: `print2`
+  --> src/printer.rs:75:5
+   |
+75 | /     pub fn print2<R: Read + Seek>(
+76 | |         &mut self,
+77 | |         reader: &mut BiBufReader<R>,
+78 | |     ) -> Result<(), ()> {
+...  |
+84 | |         Ok(())
+85 | |     }
+   | |_____^
 
 warning: function is never used: `nth_grapheme_offset`
  --> src/string_util.rs:4:1
@@ -98,138 +122,117 @@ warning: function is never used: `find_offset`
    | |_^
 
 warning: function is never used: `first_newline_wrapped`
-  --> src/string_util.rs:61:1
+  --> src/string_util.rs:60:1
    |
-61 | pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
+60 | pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: function is never used: `last_newline_wrapped`
-  --> src/string_util.rs:65:1
+  --> src/string_util.rs:64:1
    |
-65 | pub fn last_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
+64 | pub fn last_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: function is never used: `last_newline_offset`
-  --> src/string_util.rs:78:1
+  --> src/string_util.rs:77:1
    |
-78 | pub fn last_newline_offset(buf: &str) -> Option<usize> {
+77 | pub fn last_newline_offset(buf: &str) -> Option<usize> {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: function is never used: `snd_last_newline_wrapped`
-   --> src/string_util.rs:110:1
+   --> src/string_util.rs:109:1
     |
-110 | pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
+109 | pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Finished dev [unoptimized + debuginfo] target(s) in 0.98s
+    Finished dev [unoptimized + debuginfo] target(s) in 1.22s
      Running `target/debug/less2 --input_file src/main.rs`
+.
 cur_pos: 0
-page size 42768
+page size 4864
+page size 4864
+.
+cur_pos: 19
+page size 4864
+page size 4864
+.
+cur_pos: 41
+page size 4864
+page size 4864
+.
+cur_pos: 73
+page size 4864
+page size 4864
+.
+cur_pos: 76
+page size 4864
+page size 4864
+.
+cur_pos: 77
+page size 4864
 NoOp
-half screen 27
-page size 42768
-cur_pos: 468
-page size 42768
+half screen 19
+page size 4864
+.
+cur_pos: 364
+page size 4864
 NoOp
-half screen 27
-page size 42768
+half screen 19
+page size 4864
+.
+cur_pos: 706
+page size 4864
+NoOp
+half screen 19
+page size 4864
+.
+cur_pos: 1052
+page size 4864
+NoOp
+half screen 19
+page size 4864
+nth 706
+1052, 346
+.
+cur_pos: 706
+page size 4864
+NoOp
+half screen 19
+page size 4864
+nth 364
+706, 342
+.
+cur_pos: 364
+page size 4864
+NoOp
+half screen 19
+page size 4864
+nth 77
+364, 287
+.
+cur_pos: 77
+page size 4864
+NoOp
+half screen 19
+page size 4864
 nth 0
-468, 468
+77, 77
+.
 cur_pos: 0
-page size 42768
+page size 4864
 NoOp
-half screen 27
-page size 42768
-cur_pos: 468
-page size 42768
-NoOp
-half screen 27
-page size 42768
+half screen 19
+page size 4864
 nth 0
-468, 468
+0, 0
+.
 cur_pos: 0
-page size 42768
+page size 4864
 NoOp
-half screen 27
-page size 42768
-cur_pos: 468
-page size 42768
-NoOp
-half screen 27
-page size 42768
+half screen 19
+page size 4864
 nth 0
-468, 468
+0, 0
+.
 cur_pos: 0
-page size 42768
-NoOp
-half screen 27
-page size 42768
-cur_pos: 468
-page size 42768
-NoOp
-half screen 27
-page size 42768
-cur_pos: 1252
-page size 42768
-NoOp
-half screen 27
-page size 42768
-cur_pos: 1819
-page size 42768
-NoOp
-half screen 27
-page size 42768
-nth 1252
-1819, 567
-cur_pos: 1252
-page size 42768
-NoOp
-half screen 27
-page size 42768
-nth 468
-1252, 784
-cur_pos: 468
-page size 42768
-NoOp
-half screen 27
-page size 42768
-nth 0
-468, 468
-cur_pos: 0
-page size 42768
-NoOp
-half screen 27
-page size 42768
-cur_pos: 468
-page size 42768
-NoOp
-half screen 27
-page size 42768
-cur_pos: 1252
-page size 42768
-NoOp
-half screen 27
-page size 42768
-cur_pos: 1819
-page size 42768
-NoOp
-half screen 27
-page size 42768
-nth 1252
-1819, 567
-cur_pos: 1252
-page size 42768
-NoOp
-half screen 27
-page size 42768
-nth 468
-1252, 784
-cur_pos: 468
-page size 42768
-NoOp
-half screen 27
-page size 42768
-nth 0
-468, 468
-cur_pos: 0
-page size 42768
+page size 4864

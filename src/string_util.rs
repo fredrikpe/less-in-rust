@@ -43,8 +43,7 @@ where
 
 pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> Option<usize> {
     let mut grapheme_count = 0;
-    for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true)
-    {
+    for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
         grapheme_count += 1;
         if is_newline(grapheme) || grapheme_count >= screen_width {
             grapheme_count = 0;
@@ -64,8 +63,8 @@ pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
 
 pub fn last_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
     let mut last = Some(0);
-    for (index, (offset, grapheme)) in UnicodeSegmentation::grapheme_indices(buf, true)
-        .enumerate()
+    for (index, (offset, grapheme)) in
+        UnicodeSegmentation::grapheme_indices(buf, true).enumerate()
     {
         if is_newline(grapheme) || index >= screen_width {
             last = Some(offset);
@@ -181,7 +180,7 @@ mod tests {
         assert_eq!(nth_last_newline_wrapped(2, v, 3), 3);
         assert_eq!(nth_last_newline_wrapped(10, w, 3), 1);
     }
-    
+
     #[test]
     fn test_first_newline_wrapped() {
         let s = "\n";
@@ -193,7 +192,7 @@ mod tests {
         assert_eq!(first_newline_wrapped(u, 3), Some(1));
         assert_eq!(first_newline_wrapped(v, 3), Some(3));
     }
-    
+
     #[test]
     fn test_nth_newline_wrapped() {
         let s = "\n";
@@ -209,18 +208,3 @@ mod tests {
         assert_eq!(nth_newline_wrapped(2, x, 3), Some(4));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

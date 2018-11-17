@@ -5,10 +5,9 @@ use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
 use input::LEvent;
-use line_num_cache::{LineNumCache, LineNum};
-use string_util;
+use line_num_cache::{LineNum, LineNumCache};
 use screen;
-
+use string_util;
 
 pub struct BiBufReader<R> {
     pub reader: BufReader<R>,
@@ -28,32 +27,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         }
     }
 
-    pub fn move_to_command(&mut self, action: &LEvent) -> Result<()> {
-        match action {
-            LEvent::NoOp => (),
-            LEvent::DownOneLine => match self.down_n_lines(1) {
-                Ok(_) => (),
-                Err(e) => eprintln!("{}", e),
-            },
-            LEvent::DownHalfScreen => match self.down_n_lines(screen::height_half_screen()) {
-                Ok(_) => (),
-                Err(e) => eprintln!("{}", e),
-            },
-            LEvent::UpHalfScreen => match self.up_n_lines(screen::height_half_screen()) {
-                Ok(_) => (),
-                Err(e) => eprintln!("{}", e),
-            },
-            LEvent::UpOneLine => match self.up_n_lines(1) {
-                Ok(_) => (),
-                Err(e) => eprintln!("{}", e),
-            },
-            _ => (),
-        }
-
-        Ok(())
-    }
-
-    fn up_n_lines(&mut self, n: usize) -> Result<()> {
+    pub fn up_n_lines(&mut self, n: usize) -> Result<()> {
         let buf = self.make_buf_up()?;
         let size = buf.len();
 
@@ -61,11 +35,10 @@ impl<R: Read + Seek> BiBufReader<R> {
             let (screen_width, _) = terminal_size().unwrap();
 
             let start = 0;
-            let offset = size as i64 - start as i64 - 
-                string_util::nth_last_newline_wrapped(
-                    n + 1,
-                    str::from_utf8_unchecked(&buf[start..]),
-                    screen_width as usize,
+            let offset = size as i64 - start as i64 - string_util::nth_last_newline_wrapped(
+                n + 1,
+                str::from_utf8_unchecked(&buf[start..]),
+                screen_width as usize,
             ) as i64;
             eprintln!("{}, {}", size, offset);
             self.reader.seek(SeekFrom::Current(-(offset as i64)))?;
@@ -74,7 +47,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         Ok(())
     }
 
-    fn down_n_lines(&mut self, n: usize) -> Result<()> {
+    pub fn down_n_lines(&mut self, n: usize) -> Result<()> {
         let (buf, size) = self.make_buf_down()?;
 
         let (screen_width, _) = terminal_size().unwrap();
@@ -85,8 +58,7 @@ impl<R: Read + Seek> BiBufReader<R> {
                 str::from_utf8_unchecked(&buf),
                 screen_width as usize,
             ) {
-                self.reader
-                    .seek(SeekFrom::Current(newline_offset as i64))?;
+                self.reader.seek(SeekFrom::Current(newline_offset as i64))?;
             }
         }
 
@@ -112,15 +84,17 @@ impl<R: Read + Seek> BiBufReader<R> {
         self.reader.seek(SeekFrom::Current(-bytes_read))?;
 
         // Could be unchecked?
-        return match str::from_utf8(& self.page_buf[..size]) {
+        return match str::from_utf8(&self.page_buf[..size]) {
             Ok(s) => Ok(s),
             Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, "from tfu8")),
-        }
+        };
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
-        let size = std::cmp::min(self.search_buf_size(),
-                                 self.reader.seek(SeekFrom::Current(0))? as usize);
+        let size = std::cmp::min(
+            self.search_buf_size(),
+            self.reader.seek(SeekFrom::Current(0))? as usize,
+        );
 
         let mut buf = vec![0; size];
         let new_pos = self.reader.seek(SeekFrom::Current(-(size as i64)))?;
@@ -149,11 +123,13 @@ impl<R: Read + Seek> BiBufReader<R> {
     fn search_buf_size(&self) -> usize {
         self.page_size()
     }
-    
+
     fn page_size(&self) -> usize {
         let (screen_width, screen_height) = terminal_size().unwrap();
-        eprintln!("page size {}", 
-        screen_width as usize * screen_height as usize * 4); // 4 is max utf8 char sizebb
+        eprintln!(
+            "page size {}",
+            screen_width as usize * screen_height as usize * 4
+        ); // 4 is max utf8 char sizebb
         screen_width as usize * screen_height as usize * 4 // 4 is max utf8 char size
     }
 
