@@ -1,3 +1,5 @@
+#![feature(read_initializer)]
+
 extern crate clap;
 extern crate termion;
 extern crate unicode_segmentation;
