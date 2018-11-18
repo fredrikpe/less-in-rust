@@ -1,6 +1,4 @@
 
-use termion::terminal_size;
-
 use std::io::BufRead;
 use std::io::{self, Initializer, Error, ErrorKind};
 use std::io::{Read, Result, Seek, SeekFrom};
@@ -8,7 +6,7 @@ use std::str;
 
 use input::LEvent;
 use line_num_cache::{LineNum, LineNumCache};
-use screen;
+use util;
 use string_util;
 
 
@@ -19,7 +17,6 @@ pub struct BiBufReader<R> {
     buf: Box<[u8]>,
     pos: usize,
     cap: usize,
-    pub page_buf: Vec<u8>,
 }
 
 impl<R: Read + Seek> BiBufReader<R> {
@@ -37,21 +34,22 @@ impl<R: Read + Seek> BiBufReader<R> {
                 buf: buffer.into_boxed_slice(),
                 pos: 0,
                 cap: 0,
-                page_buf: Vec::with_capacity(1024),
             }
         }
     }
 
-    //pub fn jump_percentage(&mut self, percent: f32) -> Result<()> {
+    pub fn jump_percentage(&mut self, percent: u64) -> Result<()> {
+        let pos = self.seek_percent(percent)?;
 
-    //}
+        self.down_n_lines(1)
+    }
 
     pub fn up_n_lines(&mut self, n: usize) -> Result<()> {
         let buf = self.make_buf_up()?;
         let size = buf.len();
 
         unsafe {
-            let (screen_width, _) = terminal_size().unwrap();
+            let (screen_width, _) = util::screen_width_height();
 
             let start = 0;
             let offset = size as i64 - start as i64 - string_util::nth_last_newline_wrapped(
@@ -59,8 +57,7 @@ impl<R: Read + Seek> BiBufReader<R> {
                 str::from_utf8_unchecked(&buf[start..]),
                 screen_width as usize,
             ) as i64;
-            eprintln!("{}, {}", size, offset);
-            self.inner.seek(SeekFrom::Current(-(offset as i64)))?;
+            self.seek(SeekFrom::Current(-(offset as i64)))?;
         }
 
         Ok(())
@@ -69,7 +66,7 @@ impl<R: Read + Seek> BiBufReader<R> {
     pub fn down_n_lines(&mut self, n: usize) -> Result<()> {
         let (buf, size) = self.make_buf_down()?;
 
-        let (screen_width, _) = terminal_size().unwrap();
+        let (screen_width, _) = util::screen_width_height();
 
         unsafe {
             if let Some(newline_offset) = string_util::nth_newline_wrapped(
@@ -77,22 +74,21 @@ impl<R: Read + Seek> BiBufReader<R> {
                 str::from_utf8_unchecked(&buf),
                 screen_width as usize,
             ) {
-                self.inner.seek(SeekFrom::Current(newline_offset as i64))?;
+                self.seek(SeekFrom::Current(newline_offset as i64))?;
             }
         }
 
         Ok(())
     }
 
-    pub fn page(&mut self) -> Result<&str> {
-        self.pcur_pos()?;
+    pub fn page(&mut self) -> Result<Vec<u8>> {
         let size = self.page_size();
 
-        self.page_buf.clear();
-        self.page_buf.resize(size, 0);
+        let mut page_buf = Vec::with_capacity(size);
+        page_buf.resize(size, 0);
 
         let mut bytes_read: i64 = 0;
-        bytes_read = match self.inner.read(&mut self.page_buf[..size]) {
+        bytes_read = match self.read(&mut page_buf[..]) {
             Err(e) => {
                 eprintln!("errorrrr {}", e);
                 0
@@ -100,25 +96,21 @@ impl<R: Read + Seek> BiBufReader<R> {
             Ok(s) => s as i64,
         };
 
-        self.inner.seek(SeekFrom::Current(-bytes_read))?;
+        self.seek(SeekFrom::Current(-bytes_read))?;
 
-        // Could be unchecked?
-        return match str::from_utf8(&self.page_buf[..size]) {
-            Ok(s) => Ok(s),
-            Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, "from tfu8")),
-        };
+        Ok(page_buf)
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
         let size = std::cmp::min(
             self.search_buf_size(),
-            self.inner.seek(SeekFrom::Current(0))? as usize,
+            self.seek(SeekFrom::Current(0))? as usize,
         );
 
         let mut buf = vec![0; size];
-        let new_pos = self.inner.seek(SeekFrom::Current(-(size as i64)))?;
+        let new_pos = self.seek(SeekFrom::Current(-(size as i64)))?;
 
-        let bytes_read = self.inner.read(&mut buf[..size])?;
+        let bytes_read = self.read(&mut buf[..size])?;
         //debug_assert!(bytes_read as u64 == size as u64);
 
         Ok(buf)
@@ -128,13 +120,14 @@ impl<R: Read + Seek> BiBufReader<R> {
         let size = self.search_buf_size();
         let mut buf = vec![0; size as usize];
 
-        let bytes_read = self.inner.read(&mut buf)?;
+        let bytes_read = self.read(&mut buf)?;
 
         if bytes_read == 0 {
-            return Err(std::io::Error::new(std::io::ErrorKind::Other, "from tfu8"));
+            return Err(Error::new(ErrorKind::Other,
+                                  "Reached EOF. Can't make down buffer."));
         }
 
-        self.inner.seek(SeekFrom::Current(-(bytes_read as i64)))?;
+        self.seek(SeekFrom::Current(-(bytes_read as i64)))?;
 
         Ok((buf, bytes_read))
     }
@@ -144,19 +137,25 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     fn page_size(&self) -> usize {
-        let (screen_width, screen_height) = terminal_size().unwrap();
-        eprintln!(
-            "page size {}",
-            screen_width as usize * screen_height as usize * 4
-        );
+        let (screen_width, screen_height) = util::screen_width_height();
         screen_width as usize * screen_height as usize * 4 // 4 is max utf8 char size
     }
 
     fn pcur_pos(&mut self) -> Result<()> {
-        if let Ok(cur_pos) = self.inner.seek(SeekFrom::Current(0)) {
+        if let Ok(cur_pos) = self.seek(SeekFrom::Current(0)) {
             eprintln!("cur_pos: {}", cur_pos);
         }
         Ok(())
+    }
+
+    pub fn seek_percent(&mut self, percent: u64) -> Result<u64> {
+        let size = self.seek(SeekFrom::End(0))?;
+        eprintln!("size {}", size);
+
+        let offset = (size * percent / 100) as u64;
+        eprintln!("ofst {}", offset);
+
+        self.seek(SeekFrom::Start(offset))
     }
 }
 

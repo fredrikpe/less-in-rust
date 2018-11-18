@@ -1,4 +1,4 @@
-   Compiling less2 v0.1.0 (/home/fredrik/git/fredrikpe/less2)
+   Compiling less2 v0.1.0 (/home/fpi/git/fredrikpe/less2)
 warning: unused import: `input::LEvent`
  --> src/file_buffer.rs:7:5
   |
@@ -7,11 +7,23 @@ warning: unused import: `input::LEvent`
   |
   = note: #[warn(unused_imports)] on by default
 
-warning: unused import: `screen`
- --> src/file_buffer.rs:9:5
+warning: unused imports: `LineNumCache`, `LineNum`
+ --> src/file_buffer.rs:8:22
   |
-9 | use screen;
-  |     ^^^^^^
+8 | use line_num_cache::{LineNum, LineNumCache};
+  |                      ^^^^^^^  ^^^^^^^^^^^^
+
+warning: unused import: `termion::terminal_size`
+ --> src/printer.rs:4:5
+  |
+4 | use termion::terminal_size;
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `SeekFrom`, `Seek`
+ --> src/util.rs:4:15
+  |
+4 | use std::io::{Seek, SeekFrom};
+  |               ^^^^  ^^^^^^^^
 
 warning: unused import: `unicode_segmentation::GraphemeIndices`
  --> src/string_util.rs:1:5
@@ -19,53 +31,77 @@ warning: unused import: `unicode_segmentation::GraphemeIndices`
 1 | use unicode_segmentation::GraphemeIndices;
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: unused variable: `size`
-  --> src/file_buffer.rs:51:19
+warning: unused variable: `pos`
+  --> src/file_buffer.rs:42:13
    |
-51 |         let (buf, size) = self.make_buf_down()?;
-   |                   ^^^^ help: consider using `_size` instead
+42 |         let pos = self.seek_percent(percent)?;
+   |             ^^^ help: consider using `_pos` instead
    |
    = note: #[warn(unused_variables)] on by default
 
-warning: value assigned to `bytes_read` is never read
-  --> src/file_buffer.rs:75:17
+warning: unused variable: `size`
+  --> src/file_buffer.rs:67:19
    |
-75 |         let mut bytes_read: i64 = 0;
+67 |         let (buf, size) = self.make_buf_down()?;
+   |                   ^^^^ help: consider using `_size` instead
+
+warning: value assigned to `bytes_read` is never read
+  --> src/file_buffer.rs:90:17
+   |
+90 |         let mut bytes_read: i64 = 0;
    |                 ^^^^^^^^^^
    |
    = note: #[warn(unused_assignments)] on by default
 
-warning: unused variable: `e`
-  --> src/file_buffer.rs:89:17
-   |
-89 |             Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, "from tfu8")),
-   |                 ^ help: consider using `_e` instead
-
 warning: unused variable: `new_pos`
-   --> src/file_buffer.rs:100:13
+   --> src/file_buffer.rs:111:13
     |
-100 |         let new_pos = self.reader.seek(SeekFrom::Current(-(size as i64)))?;
+111 |         let new_pos = self.seek(SeekFrom::Current(-(size as i64)))?;
     |             ^^^^^^^ help: consider using `_new_pos` instead
 
 warning: unused variable: `bytes_read`
-   --> src/file_buffer.rs:102:13
+   --> src/file_buffer.rs:113:13
     |
-102 |         let bytes_read = self.reader.read(&mut buf[..size])?;
+113 |         let bytes_read = self.read(&mut buf[..size])?;
     |             ^^^^^^^^^^ help: consider using `_bytes_read` instead
 
-warning: unused variable: `reader`
-  --> src/printer.rs:77:9
+warning: unused variable: `e`
+  --> src/printer.rs:41:17
    |
-77 |         reader: &mut BiBufReader<R>,
+41 |             Err(e) => return Err(()),
+   |                 ^ help: consider using `_e` instead
+
+warning: unused variable: `reader`
+  --> src/printer.rs:84:9
+   |
+84 |         reader: &mut BiBufReader<R>,
    |         ^^^^^^ help: consider using `_reader` instead
 
-warning: field is never used: `line_num_cache`
-  --> src/file_buffer.rs:15:5
+warning: method is never used: `pcur_pos`
+   --> src/file_buffer.rs:144:5
+    |
+144 |     fn pcur_pos(&mut self) -> Result<()> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: #[warn(dead_code)] on by default
+
+warning: struct is never constructed: `LineNumCache`
+ --> src/line_num_cache.rs:7:1
+  |
+7 | pub struct LineNumCache {
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method is never used: `new`
+  --> src/line_num_cache.rs:12:5
    |
-15 |     line_num_cache: LineNumCache,
+12 |     pub fn new() -> LineNumCache {
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method is never used: `add`
+  --> src/line_num_cache.rs:18:5
    |
-   = note: #[warn(dead_code)] on by default
+18 |     pub fn add(&mut self, line_num: LineNum) {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: method is never used: `prev`
   --> src/line_num_cache.rs:25:5
@@ -79,17 +115,35 @@ warning: method is never used: `closest`
 40 |     pub fn closest(&mut self, offset: usize) -> Option<(LineNum, i64)> {
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: method is never used: `print2`
-  --> src/printer.rs:75:5
+warning: method is never used: `add_important`
+  --> src/line_num_cache.rs:56:5
    |
-75 | /     pub fn print2<R: Read + Seek>(
-76 | |         &mut self,
-77 | |         reader: &mut BiBufReader<R>,
-78 | |     ) -> Result<(), ()> {
+56 |     fn add_important(&mut self, line_num: LineNum) {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method is never used: `try_add`
+  --> src/line_num_cache.rs:60:5
+   |
+60 |     fn try_add(&mut self, line_num: LineNum) -> Result<(), ()> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method is never used: `print2`
+  --> src/printer.rs:82:5
+   |
+82 | /     pub fn print2<R: Read + Seek>(
+83 | |         &mut self,
+84 | |         reader: &mut BiBufReader<R>,
+85 | |     ) -> Result<(), ()> {
 ...  |
-84 | |         Ok(())
-85 | |     }
+91 | |         Ok(())
+92 | |     }
    | |_____^
+
+warning: function is never used: `file_size`
+  --> src/util.rs:21:1
+   |
+21 | pub fn file_size(file: File) -> Result<u64, std::io::Error> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: function is never used: `nth_grapheme_offset`
  --> src/string_util.rs:4:1
@@ -145,94 +199,206 @@ warning: function is never used: `snd_last_newline_wrapped`
 109 | pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Finished dev [unoptimized + debuginfo] target(s) in 1.22s
-     Running `target/debug/less2 --input_file src/main.rs`
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:44:9
+   |
+44 |         write!(self.out, "{}", termion::cursor::Goto(1, 1));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: #[warn(unused_must_use)] on by default
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:55:17
+   |
+55 |                 writeln!(self.out);
+   |                 ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:56:17
+   |
+56 |                 write!(self.out, "\r");
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:62:17
+   |
+62 |                 writeln!(self.out);
+   |                 ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:63:17
+   |
+63 |                 write!(self.out, "\r");
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:66:17
+   |
+66 |                 write!(self.out, "{}", grapheme);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:77:9
+   |
+77 |         write!(self.out, "\n\r");
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:78:9
+   |
+78 |         write!(self.out, ":");
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:79:9
+   |
+79 |         write!(self.out, "{}", termion::cursor::Goto(2, line_num + 1));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:87:9
+   |
+87 |         write!(self.out, "{}", termion::cursor::Goto(1, 1));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+warning: unused `std::result::Result` that must be used
+  --> src/printer.rs:96:9
+   |
+96 |         write!(self.out, "{}", termion::clear::All);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+    Finished dev [unoptimized + debuginfo] target(s) in 0.73s
+     Running `target/debug/less2 --input_file test_utf8.txt`
 .
-cur_pos: 0
-page size 4864
-page size 4864
 .
-cur_pos: 19
-page size 4864
-page size 4864
 .
-cur_pos: 41
-page size 4864
-page size 4864
 .
-cur_pos: 73
-page size 4864
-page size 4864
+half screen 29
 .
-cur_pos: 76
-page size 4864
-page size 4864
+half screen 29
 .
-cur_pos: 77
-page size 4864
-NoOp
-half screen 19
-page size 4864
+half screen 29
 .
-cur_pos: 364
-page size 4864
-NoOp
-half screen 19
-page size 4864
 .
-cur_pos: 706
-page size 4864
-NoOp
-half screen 19
-page size 4864
 .
-cur_pos: 1052
-page size 4864
-NoOp
-half screen 19
-page size 4864
-nth 706
-1052, 346
 .
-cur_pos: 706
-page size 4864
-NoOp
-half screen 19
-page size 4864
-nth 364
-706, 342
+nth 12596
 .
-cur_pos: 364
-page size 4864
-NoOp
-half screen 19
-page size 4864
-nth 77
-364, 287
+nth 1904
 .
-cur_pos: 77
-page size 4864
-NoOp
-half screen 19
-page size 4864
 nth 0
-77, 77
 .
-cur_pos: 0
-page size 4864
-NoOp
-half screen 19
-page size 4864
 nth 0
-0, 0
 .
-cur_pos: 0
-page size 4864
-NoOp
-half screen 19
-page size 4864
+.
+.
+nth 2216
+.
 nth 0
-0, 0
 .
-cur_pos: 0
-page size 4864
+.
+nth 0
+.
+.
+nth 0
+.
+.
+nth 0
+.
+nth 0
+.
+.
+.
+.
+nth 6604
+.
+nth 2216
+.
+nth 0
+.
+.
+.
+.
+nth 6604
+.
+nth 2216
+.
+nth 0
+.
+.
+.
+.
+nth 6604
+.
+nth 2216
+.
+nth 0
+.
+.
+.
+.
+nth 6604
+.
+nth 2216
+.
+nth 0
+.
+.
+.
+nth 2216
+.
+.
+.
+.
+Error in update_reader: Reached EOF. Can't make down buffer.
+.
+Error in update_reader: Reached EOF. Can't make down buffer.
+.
+Error in update_reader: Reached EOF. Can't make down buffer.
+.
+Error in update_reader: Reached EOF. Can't make down buffer.
+.
+nth 10411
+.
+nth 2631
+.
+nth 273
+.
+nth 0
+.
+nth 0
+.
+nth 0
+.

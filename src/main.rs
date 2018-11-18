@@ -19,7 +19,7 @@ mod file_buffer;
 mod input;
 mod line_num_cache;
 mod printer;
-mod screen;
+mod util;
 mod string_util;
 
 use input::LEvent;
@@ -45,14 +45,9 @@ fn main() {
         Err(_) => return (),
     };
 
-    let _metadata = match file.metadata() {
-        Ok(m) => m,
-        Err(_) => return (),
-    };
-
     let mut state = State { quit: false };
 
-    let mut bi_reader = file_buffer::BiBufReader::new(std::io::BufReader::new(file));
+    let mut bi_reader = file_buffer::BiBufReader::new(file);
 
     match run(&mut state, &mut bi_reader) {
         Ok(()) => return (),
@@ -70,9 +65,7 @@ impl State {
             LEvent::UpOneLine => (),
             LEvent::DownOneLine => (),
             LEvent::Quit => self.quit = true,
-            _ => {
-                eprintln!("NoOp");
-            }
+            _ => {},
         }
     }
 }
@@ -114,10 +107,12 @@ fn update_reader<R: Read + Seek>(
     match action {
         LEvent::UpOneLine => reader.up_n_lines(1)?,
         LEvent::DownOneLine => reader.down_n_lines(1)?,
-        LEvent::DownHalfScreen => reader.down_n_lines(screen::screen_height_half())?,
-        LEvent::UpHalfScreen => reader.up_n_lines(screen::screen_height_half())?,
-        LEvent::DownOneScreen => reader.down_n_lines(screen::screen_height())?,
-        LEvent::UpOneScreen => reader.up_n_lines(screen::screen_height())?,
+        LEvent::DownHalfScreen => reader.down_n_lines(util::screen_height_half())?,
+        LEvent::UpHalfScreen => reader.up_n_lines(util::screen_height_half())?,
+        LEvent::DownOneScreen => reader.down_n_lines(util::screen_height())?,
+        LEvent::UpOneScreen => reader.up_n_lines(util::screen_height())?,
+        LEvent::JumpBeginning => reader.jump_percentage(0)?,
+        LEvent::JumpEnd => reader.jump_percentage(100)?,
         LEvent::NoOp => (),
         _ => (),
     }

@@ -16,9 +16,13 @@ pub enum LEvent {
     DownHalfScreen,
     DownOneScreen,
 
+    JumpBeginning,
+    JumpEnd,
+
     Quit,
     NoOp,
 }
+
 
 pub fn get_input() -> LEvent {
     let stdin = stdin();
@@ -37,6 +41,9 @@ pub fn get_input() -> LEvent {
 
             Event::Mouse(MouseEvent::Press(MouseButton::WheelUp, _, _))
             | Event::Key(Key::Char('k')) => LEvent::UpOneLine,
+
+            Event::Key(Key::Char('g')) => LEvent::JumpBeginning,
+            Event::Key(Key::Char('G')) => LEvent::JumpEnd,
 
             _ => LEvent::NoOp,
         };

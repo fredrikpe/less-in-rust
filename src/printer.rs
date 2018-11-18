@@ -5,8 +5,10 @@ use termion::terminal_size;
 use unicode_segmentation::UnicodeSegmentation;
 
 use std::io::{Read, Seek, Write};
+use std::str;
 
 use string_util;
+use util;
 
 pub struct Printer<W: Write> {
     pub out: AlternateScreen<W>,
@@ -24,7 +26,7 @@ impl<W: Write> Printer<W> {
         self.clear_screen();
 
         let mut screen_line_number: u16 = 1;
-        let (screen_width, screen_height) = terminal_size().unwrap();
+        let (screen_width, screen_height) = util::screen_width_height();
 
         let page = match reader.page() {
             Ok(s) => s,
@@ -34,10 +36,15 @@ impl<W: Write> Printer<W> {
             }
         };
 
+        let page_string = match str::from_utf8(&page[..]) {
+            Ok(s) => s,
+            Err(e) => return Err(()),
+        };
+
         write!(self.out, "{}", termion::cursor::Goto(1, 1));
 
         let mut grapheme_count = 0;
-        for grapheme in UnicodeSegmentation::graphemes(page, true) {
+        for grapheme in UnicodeSegmentation::graphemes(&page_string[..], true) {
             if screen_line_number >= screen_height - 1 {
                 break;
             }
