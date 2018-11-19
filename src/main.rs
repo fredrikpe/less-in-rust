@@ -15,14 +15,13 @@ use std::result::Result;
 
 use clap::{App, Arg};
 
+mod commands;
 mod file_buffer;
 mod input;
 mod line_num_cache;
 mod printer;
-mod util;
 mod string_util;
-mod commands;
-
+mod util;
 
 fn main() {
     let matches = App::new("My Super Program")
@@ -37,14 +36,14 @@ fn main() {
                 .help("Sets a custom config file")
                 .takes_value(true)
                 .required(true),
-        ).get_matches();
+        )
+        .get_matches();
 
     let input_file = matches.value_of("input_file");
     let file = match File::open(input_file.unwrap()) {
         Ok(f) => f,
         Err(_) => return (),
     };
-
 
     if let Err(e) = run(file) {
         std::process::exit(1);
@@ -61,7 +60,7 @@ fn run(file: File) -> Result<(), ()> {
     let mut input_event = input::Input::NoOp;
 
     loop {
-        let _ = printer.print_screen(&state.page());
+        let _ = printer.print_screen(&state.page(), state.command_line_text());
 
         let input = input::parse_input();
 

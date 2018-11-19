@@ -22,4 +22,3 @@ pub fn file_size(file: File) -> Result<u64, std::io::Error> {
     let metadata = file.metadata()?;
     Ok(metadata.len())
 }
-

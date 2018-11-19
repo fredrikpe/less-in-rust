@@ -1,11 +1,10 @@
-
 use std::io::{Read, Seek};
 
+use file_buffer::BiBufReader;
 use input::Input;
 use util;
-use file_buffer::BiBufReader;
 
-
+#[derive(Debug, PartialEq)]
 pub enum Command {
     UpOneLine,
     UpHalfScreen,
@@ -25,7 +24,6 @@ pub enum Command {
     NoOp,
 }
 
-
 pub enum Mode {
     Normal,
     Search,
@@ -35,6 +33,7 @@ pub struct State<R: Read + Seek> {
     reader: BiBufReader<R>,
     pub quit: bool,
     mode: Mode,
+    buf: Vec<u32>,
 }
 
 impl<R: Read + Seek> State<R> {
@@ -43,6 +42,7 @@ impl<R: Read + Seek> State<R> {
             reader: reader,
             quit: false,
             mode: Mode::Normal,
+            buf: Vec::new(),
         }
     }
 
@@ -58,7 +58,10 @@ impl<R: Read + Seek> State<R> {
             Command::UpOneScreen => self.reader.up_n_lines(util::screen_height())?,
             Command::JumpBeginning => self.reader.jump_percentage(0)?,
             Command::JumpEnd => self.reader.jump_end()?,
-            Command::Quit => { self.quit = true; },
+            Command::JumpPercent(p) => self.reader.jump_percentage(p)?,
+            Command::Quit => {
+                self.quit = true;
+            }
             Command::NoOp => (),
             _ => (),
         }
@@ -70,11 +73,11 @@ impl<R: Read + Seek> State<R> {
         return match self.mode {
             Mode::Normal => self.normal_command(input),
             Mode::Search => self.normal_command(input),
-        }
+        };
     }
 
     fn normal_command(&mut self, input: &Input) -> Command {
-        return match input {
+        let command = match input {
             Input::Char('q') => Command::Quit,
 
             Input::Ctrl('d') => Command::DownHalfScreen,
@@ -85,15 +88,47 @@ impl<R: Read + Seek> State<R> {
 
             Input::Char('j') => Command::DownOneLine,
             Input::Char('k') => Command::UpOneLine,
+
             Input::Char('g') => Command::JumpBeginning,
             Input::Char('G') => Command::JumpEnd,
+            Input::Char('p') => Command::JumpPercent(self.total_number()),
+
+            Input::Num(n) => {
+                self.add_number(*n);
+                Command::NoOp
+            }
+
+            Input::Ctrl(_) => Command::NoOp,
             _ => Command::NoOp,
+        };
+        if command != Command::NoOp {
+            self.buf.clear();
         }
+
+        command
     }
 
+    fn add_number(&mut self, n: u32) {
+        self.buf.push(n);
+    }
 
-    pub fn page(&mut self)-> Vec<u8> {
-        return self.reader.page().unwrap()
+    fn total_number(&mut self) -> u64 {
+        let mut tot = 0;
+        for (i, n) in self.buf.iter().enumerate() {
+            tot += *n as u64 * 10u64.pow((self.buf.len() - i - 1) as u32);
+        }
+        tot
+    }
+
+    pub fn page(&mut self) -> Vec<u8> {
+        return self.reader.page().unwrap();
+    }
+
+    pub fn command_line_text(&mut self) -> String {
+        return match self.total_number() {
+            0 => format!(":"),
+            n => format!(":{}", n),
+        };
     }
 }
 
@@ -101,7 +136,4 @@ pub struct NormalMode {
     command: Command,
 }
 
-impl NormalMode {
-    
-}
-
+impl NormalMode {}

@@ -19,7 +19,11 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn print_screen(&mut self, page: &Vec<u8>) -> Result<(), ()> {
+    pub fn print_screen(
+        &mut self,
+        page: &Vec<u8>,
+        command_line_text: String,
+    ) -> Result<(), ()> {
         self.clear_screen();
 
         let mut screen_line_number: u16 = 1;
@@ -56,30 +60,29 @@ impl<W: Write> Printer<W> {
             }
         }
 
-        self.write_command_line(screen_line_number);
+        self.write_command_line(command_line_text, screen_line_number);
         self.flush();
 
         Ok(())
     }
 
-    fn write_command_line(&mut self, line_num: u16) {
+    fn write_command_line(&mut self, command_line_text: String, line_num: u16) {
         write!(self.out, "\n\r");
-        write!(self.out, ":");
-        write!(self.out, "{}", termion::cursor::Goto(2, line_num + 1));
+        write!(self.out, "{}", command_line_text);
+        write!(
+            self.out,
+            "{}",
+            termion::cursor::Goto((command_line_text.len() + 1) as u16, line_num + 1)
+        );
     }
 
-    pub fn print2<R: Read + Seek>(
-        &mut self,
-        reader: &mut BiBufReader<R>,
-    ) -> Result<(), ()> {
-
+    pub fn print2<R: Read + Seek>(&mut self, reader: &mut BiBufReader<R>) -> Result<(), ()> {
         write!(self.out, "{}", termion::cursor::Goto(1, 1));
         self.clear_screen();
         self.flush();
 
         Ok(())
     }
-
 
     fn clear_screen(&mut self) {
         write!(self.out, "{}", termion::clear::All);

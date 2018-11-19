@@ -1,13 +1,11 @@
-
 use std::io::BufRead;
-use std::io::{self, Initializer, Error, ErrorKind};
+use std::io::{self, Error, ErrorKind, Initializer};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
 use line_num_cache::{LineNum, LineNumCache};
-use util;
 use string_util;
-
+use util;
 
 const DEFAULT_BUF_SIZE: usize = 4096;
 
@@ -27,7 +25,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         unsafe {
             let mut buffer = Vec::with_capacity(cap);
             buffer.set_len(cap);
-//            inner.initializer().initialize(&mut buffer);
+            //            inner.initializer().initialize(&mut buffer);
             BiBufReader {
                 inner,
                 buf: buffer.into_boxed_slice(),
@@ -55,11 +53,13 @@ impl<R: Read + Seek> BiBufReader<R> {
             let (screen_width, _) = util::screen_width_height();
 
             let start = 0;
-            let offset = size as i64 - start as i64 - string_util::nth_last_newline_wrapped(
-                n + 1,
-                str::from_utf8_unchecked(&buf[start..]),
-                screen_width as usize,
-            ) as i64;
+            let offset = size as i64
+                - start as i64
+                - string_util::nth_last_newline_wrapped(
+                    n + 1,
+                    str::from_utf8_unchecked(&buf[start..]),
+                    screen_width as usize,
+                ) as i64;
             self.seek(SeekFrom::Current(-(offset as i64)))?;
         }
 
@@ -126,8 +126,10 @@ impl<R: Read + Seek> BiBufReader<R> {
         let bytes_read = self.read(&mut buf)?;
 
         if bytes_read == 0 {
-            return Err(Error::new(ErrorKind::Other,
-                                  "Reached EOF. Can't make down buffer."));
+            return Err(Error::new(
+                ErrorKind::Other,
+                "Reached EOF. Can't make down buffer.",
+            ));
         }
 
         self.seek(SeekFrom::Current(-(bytes_read as i64)))?;
@@ -153,8 +155,9 @@ impl<R: Read + Seek> BiBufReader<R> {
 
     pub fn seek_percent(&mut self, percent: u64) -> Result<u64> {
         let size = self.seek(SeekFrom::End(0))?;
-        let offset = (size * percent / 100) as u64;
+        let offset = std::cmp::min(size, (size * percent / 100) as u64);
 
+        eprintln!("offset {}", offset);
         self.seek(SeekFrom::Start(offset))
     }
 }
