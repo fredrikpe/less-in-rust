@@ -1,322 +1,557 @@
-   Compiling less2 v0.1.0 (/home/fpi/git/fredrikpe/less2)
-warning: unused import: `input::LEvent`
- --> src/file_buffer.rs:7:5
-  |
-7 | use input::LEvent;
-  |     ^^^^^^^^^^^^^
-  |
-  = note: #[warn(unused_imports)] on by default
-
-warning: unused imports: `LineNumCache`, `LineNum`
- --> src/file_buffer.rs:8:22
-  |
-8 | use line_num_cache::{LineNum, LineNumCache};
-  |                      ^^^^^^^  ^^^^^^^^^^^^
-
-warning: unused import: `termion::terminal_size`
- --> src/printer.rs:4:5
-  |
-4 | use termion::terminal_size;
-  |     ^^^^^^^^^^^^^^^^^^^^^^
-
-warning: unused imports: `SeekFrom`, `Seek`
- --> src/util.rs:4:15
-  |
-4 | use std::io::{Seek, SeekFrom};
-  |               ^^^^  ^^^^^^^^
-
-warning: unused import: `unicode_segmentation::GraphemeIndices`
- --> src/string_util.rs:1:5
-  |
-1 | use unicode_segmentation::GraphemeIndices;
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: unused variable: `pos`
-  --> src/file_buffer.rs:42:13
-   |
-42 |         let pos = self.seek_percent(percent)?;
-   |             ^^^ help: consider using `_pos` instead
-   |
-   = note: #[warn(unused_variables)] on by default
-
-warning: unused variable: `size`
-  --> src/file_buffer.rs:67:19
-   |
-67 |         let (buf, size) = self.make_buf_down()?;
-   |                   ^^^^ help: consider using `_size` instead
-
-warning: value assigned to `bytes_read` is never read
-  --> src/file_buffer.rs:90:17
-   |
-90 |         let mut bytes_read: i64 = 0;
-   |                 ^^^^^^^^^^
-   |
-   = note: #[warn(unused_assignments)] on by default
-
-warning: unused variable: `new_pos`
-   --> src/file_buffer.rs:111:13
-    |
-111 |         let new_pos = self.seek(SeekFrom::Current(-(size as i64)))?;
-    |             ^^^^^^^ help: consider using `_new_pos` instead
-
-warning: unused variable: `bytes_read`
-   --> src/file_buffer.rs:113:13
-    |
-113 |         let bytes_read = self.read(&mut buf[..size])?;
-    |             ^^^^^^^^^^ help: consider using `_bytes_read` instead
-
-warning: unused variable: `e`
-  --> src/printer.rs:41:17
-   |
-41 |             Err(e) => return Err(()),
-   |                 ^ help: consider using `_e` instead
-
-warning: unused variable: `reader`
-  --> src/printer.rs:84:9
-   |
-84 |         reader: &mut BiBufReader<R>,
-   |         ^^^^^^ help: consider using `_reader` instead
-
-warning: method is never used: `pcur_pos`
-   --> src/file_buffer.rs:144:5
-    |
-144 |     fn pcur_pos(&mut self) -> Result<()> {
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    |
-    = note: #[warn(dead_code)] on by default
-
-warning: struct is never constructed: `LineNumCache`
- --> src/line_num_cache.rs:7:1
-  |
-7 | pub struct LineNumCache {
-  | ^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `new`
-  --> src/line_num_cache.rs:12:5
-   |
-12 |     pub fn new() -> LineNumCache {
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `add`
-  --> src/line_num_cache.rs:18:5
-   |
-18 |     pub fn add(&mut self, line_num: LineNum) {
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `prev`
-  --> src/line_num_cache.rs:25:5
-   |
-25 |     pub fn prev(&mut self, offset: usize) -> Option<(LineNum, i64)> {
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `closest`
-  --> src/line_num_cache.rs:40:5
-   |
-40 |     pub fn closest(&mut self, offset: usize) -> Option<(LineNum, i64)> {
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `add_important`
-  --> src/line_num_cache.rs:56:5
-   |
-56 |     fn add_important(&mut self, line_num: LineNum) {
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `try_add`
-  --> src/line_num_cache.rs:60:5
-   |
-60 |     fn try_add(&mut self, line_num: LineNum) -> Result<(), ()> {
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: method is never used: `print2`
-  --> src/printer.rs:82:5
-   |
-82 | /     pub fn print2<R: Read + Seek>(
-83 | |         &mut self,
-84 | |         reader: &mut BiBufReader<R>,
-85 | |     ) -> Result<(), ()> {
-...  |
-91 | |         Ok(())
-92 | |     }
-   | |_____^
-
-warning: function is never used: `file_size`
-  --> src/util.rs:21:1
-   |
-21 | pub fn file_size(file: File) -> Result<u64, std::io::Error> {
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `nth_grapheme_offset`
- --> src/string_util.rs:4:1
-  |
-4 | pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `next_newline_offset`
-  --> src/string_util.rs:14:1
-   |
-14 | pub fn next_newline_offset(buf: &str) -> Option<usize> {
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `aprev_newline_offset`
-  --> src/string_util.rs:21:1
-   |
-21 | pub fn aprev_newline_offset(buf: &str) -> Option<usize> {
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `find_offset`
-  --> src/string_util.rs:28:1
-   |
-28 | / pub fn find_offset<'a, P, I: Iterator<Item = (usize, &'a str)>>(
-29 | |     grapheme_indices: I,
-30 | |     mut predicate: P,
-31 | | ) -> Option<usize>
-...  |
-41 | |     None
-42 | | }
-   | |_^
-
-warning: function is never used: `first_newline_wrapped`
-  --> src/string_util.rs:60:1
-   |
-60 | pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `last_newline_wrapped`
-  --> src/string_util.rs:64:1
-   |
-64 | pub fn last_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `last_newline_offset`
-  --> src/string_util.rs:77:1
-   |
-77 | pub fn last_newline_offset(buf: &str) -> Option<usize> {
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: function is never used: `snd_last_newline_wrapped`
-   --> src/string_util.rs:109:1
-    |
-109 | pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:44:9
-   |
-44 |         write!(self.out, "{}", termion::cursor::Goto(1, 1));
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: #[warn(unused_must_use)] on by default
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:55:17
-   |
-55 |                 writeln!(self.out);
-   |                 ^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:56:17
-   |
-56 |                 write!(self.out, "\r");
-   |                 ^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:62:17
-   |
-62 |                 writeln!(self.out);
-   |                 ^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:63:17
-   |
-63 |                 write!(self.out, "\r");
-   |                 ^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:66:17
-   |
-66 |                 write!(self.out, "{}", grapheme);
-   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:77:9
-   |
-77 |         write!(self.out, "\n\r");
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:78:9
-   |
-78 |         write!(self.out, ":");
-   |         ^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:79:9
-   |
-79 |         write!(self.out, "{}", termion::cursor::Goto(2, line_num + 1));
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:87:9
-   |
-87 |         write!(self.out, "{}", termion::cursor::Goto(1, 1));
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-warning: unused `std::result::Result` that must be used
-  --> src/printer.rs:96:9
-   |
-96 |         write!(self.out, "{}", termion::clear::All);
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this `Result` may be an `Err` variant, which should be handled
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-    Finished dev [unoptimized + debuginfo] target(s) in 0.73s
-     Running `target/debug/less2 --input_file test_utf8.txt`
+    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/less2 --input_file /home/fredrik/var/sannsyn/recommender/logs/aggregator.log`
+.
+size 2366627282
+ofst 2366627282
+nth 6266
 .
 .
 .
 .
-half screen 29
 .
-half screen 29
+nth 7645
 .
-half screen 29
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 7600
+.
+nth 7645
+.
+nth 7600
+.
+nth 6145
+.
+nth 5939
+.
+nth 5998
+.
+nth 6326
+.
+nth 6393
+.
+nth 6256
+.
+nth 6342
+.
+nth 6425
+.
+nth 6287
+.
+nth 6310
+.
+nth 6441
+.
+nth 6224
+.
+nth 6342
+.
+nth 6432
+.
+nth 6277
+.
+nth 6313
+.
+nth 6430
+.
+nth 6309
+.
+nth 6291
+.
+nth 6405
+.
+nth 6356
+.
+nth 6255
+.
+nth 6380
+.
+nth 6375
+.
+nth 6259
+.
+nth 6409
+.
+nth 6309
+.
+nth 6287
+.
+nth 6371
+.
+nth 6326
+.
+nth 6303
+.
+nth 6345
+.
+nth 6342
+.
+nth 6325
+.
+nth 6309
+.
+nth 6386
+.
+nth 6279
+.
+nth 6320
+.
+nth 6407
+.
+nth 6319
+.
+nth 6265
+.
+nth 6439
+.
+nth 6275
+.
+nth 6310
+.
+nth 6449
+.
+nth 6218
+.
+nth 6260
+.
+nth 6397
+.
+nth 6309
+.
+nth 6318
+.
+nth 6350
+.
+nth 6320
+.
+nth 6337
+.
+nth 6391
+.
+nth 6265
+.
+nth 6336
+.
+nth 6375
+.
+nth 6310
+.
+nth 6360
+.
+nth 6309
+.
+nth 6354
+.
+nth 6308
+.
+nth 6326
+.
+nth 6393
+.
+nth 6257
+.
+nth 6342
+.
+nth 6425
+.
+nth 6286
+.
+nth 6310
+.
+nth 6441
+.
+nth 6224
+.
+nth 6342
+.
+nth 6432
+.
+nth 6277
+.
+nth 6313
+.
+nth 6430
+.
+nth 6307
+.
+nth 6291
+.
+nth 6405
+.
+nth 6357
+.
+nth 6255
+.
+nth 6380
+.
+nth 6375
+.
+nth 6259
+.
+nth 6409
+.
+nth 6309
+.
+nth 6289
+.
+nth 6371
+.
+nth 6326
+.
+nth 6304
+.
+nth 6345
+.
+nth 6342
+.
+nth 6326
+.
+nth 6309
+.
+nth 6386
+.
+nth 6280
+.
+nth 6320
+.
+nth 6407
+.
+nth 6319
+.
+nth 6265
+.
+nth 6439
+.
+nth 6271
+.
+nth 6310
+.
+nth 6449
+.
+nth 6213
+.
+nth 6356
+.
+nth 6445
+.
+nth 6251
+.
+nth 6328
+.
+nth 6434
+.
+nth 6290
+.
+nth 6299
+.
+nth 6417
+.
+nth 6336
+.
+nth 6283
+.
+nth 6382
+.
+nth 6345
+.
+nth 6271
+.
+nth 6397
+.
+nth 6309
+.
+nth 6315
+.
+nth 6350
+.
+nth 6320
+.
+nth 6335
+.
+nth 6391
+.
+nth 6265
+.
+nth 6335
+.
+nth 6375
+.
+nth 6310
+.
+nth 6356
+.
+nth 6309
+.
+nth 6354
+.
+nth 6306
+.
+nth 6326
+.
+nth 6393
+.
+nth 6256
+.
+nth 6342
+.
+nth 6425
+.
+nth 6285
+.
+nth 6310
+.
+nth 6441
+.
+nth 6223
+.
+nth 6342
+.
+nth 6432
+.
+nth 6278
+.
+nth 6313
+.
+nth 6430
+.
+nth 6310
+.
+nth 6291
+.
+nth 6405
+.
+nth 6357
+.
+nth 6255
+.
+nth 6380
+.
+nth 6375
+.
+nth 6259
+.
+nth 6409
+.
+nth 6309
+.
+nth 6289
+.
+nth 6371
+.
+nth 6326
+.
+nth 6305
+.
+nth 6345
+.
+nth 6342
+.
+nth 6325
+.
+nth 6309
+.
+nth 6386
+.
+nth 6279
+.
+nth 6320
+.
+nth 6407
+.
+nth 6320
+.
+nth 6265
+.
+nth 6439
+.
+nth 6272
+.
+nth 6310
+.
+nth 6449
+.
+nth 6215
+.
+nth 6356
+.
+nth 6445
+.
+nth 6251
+.
+nth 6328
+.
+nth 6434
+.
+nth 6291
+.
+nth 6299
+.
+nth 6417
+.
+nth 6337
+.
+nth 6283
+.
+nth 6382
+.
+nth 6345
+.
+nth 6271
+.
+nth 6397
+.
+nth 6309
+.
+nth 6315
+.
+nth 6350
+.
+nth 6320
+.
+nth 6338
+.
+nth 6391
+.
+nth 6265
+.
+nth 6336
+.
+nth 6375
+.
+nth 6310
+.
+nth 6358
+.
+nth 6309
+.
+nth 6354
+.
+nth 6307
+.
+nth 6326
+.
+nth 6393
+.
+nth 6257
+.
+nth 6342
+.
+nth 6425
+.
+nth 6286
+.
+nth 6310
+.
+nth 6441
+.
+nth 6224
+.
+nth 6342
+.
+nth 6432
+.
+nth 6278
+.
+nth 6313
+.
+nth 6430
+.
+nth 6312
+.
+nth 6291
+.
+nth 6405
+.
+nth 6357
+.
+nth 6255
+.
+nth 6380
+.
+nth 6375
+.
+nth 6259
+.
+nth 6409
+.
+nth 6309
+.
+nth 6287
+.
+nth 6371
+.
+nth 6326
+.
+nth 6305
+.
+nth 6345
+.
+nth 6342
+.
+nth 6325
+.
+nth 6309
+.
+nth 6386
 .
 .
 .
+size 2366627282
+ofst 0
+nth 0
 .
-nth 12596
+size 2366627282
+ofst 2366627282
+nth 6266
 .
-nth 1904
+size 2366627282
+ofst 0
+nth 0
+.
+size 2366627282
+ofst 2366627282
+nth 6266
+.
+size 2366627282
+ofst 0
+nth 0
+.
+nth 0
 .
 nth 0
 .
@@ -324,81 +559,247 @@ nth 0
 .
 .
 .
-nth 2216
-.
-nth 0
-.
-.
-nth 0
-.
-.
-nth 0
-.
-.
-nth 0
-.
-nth 0
 .
 .
 .
 .
-nth 6604
-.
-nth 2216
-.
-nth 0
 .
 .
 .
 .
-nth 6604
-.
-nth 2216
-.
-nth 0
 .
 .
 .
 .
-nth 6604
-.
-nth 2216
-.
-nth 0
 .
 .
 .
 .
-nth 6604
-.
-nth 2216
-.
-nth 0
-.
-.
-.
-nth 2216
 .
 .
 .
 .
-Error in update_reader: Reached EOF. Can't make down buffer.
 .
-Error in update_reader: Reached EOF. Can't make down buffer.
 .
-Error in update_reader: Reached EOF. Can't make down buffer.
 .
-Error in update_reader: Reached EOF. Can't make down buffer.
 .
-nth 10411
 .
-nth 2631
 .
-nth 273
 .
-nth 0
 .
-nth 0
 .
-nth 0
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+half screen 12
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
 .

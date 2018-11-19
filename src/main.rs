@@ -85,7 +85,6 @@ fn run<R: Read + Seek>(
             eprintln!("Error in update_reader: {}", e);
         }
 
-        eprintln!(".");
         let _ = printer.print_screen(bi_reader);
 
         input_event = input::get_input();
@@ -112,7 +111,7 @@ fn update_reader<R: Read + Seek>(
         LEvent::DownOneScreen => reader.down_n_lines(util::screen_height())?,
         LEvent::UpOneScreen => reader.up_n_lines(util::screen_height())?,
         LEvent::JumpBeginning => reader.jump_percentage(0)?,
-        LEvent::JumpEnd => reader.jump_percentage(100)?,
+        LEvent::JumpEnd => reader.jump_end()?,
         LEvent::NoOp => (),
         _ => (),
     }

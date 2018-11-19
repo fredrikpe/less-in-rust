@@ -40,8 +40,12 @@ impl<R: Read + Seek> BiBufReader<R> {
 
     pub fn jump_percentage(&mut self, percent: u64) -> Result<()> {
         let pos = self.seek_percent(percent)?;
+        self.up_n_lines(1)
+    }
 
-        self.down_n_lines(1)
+    pub fn jump_end(&mut self) -> Result<()> {
+        let pos = self.seek_percent(100)?;
+        self.up_n_lines(util::screen_height() - 1)
     }
 
     pub fn up_n_lines(&mut self, n: usize) -> Result<()> {
@@ -150,10 +154,7 @@ impl<R: Read + Seek> BiBufReader<R> {
 
     pub fn seek_percent(&mut self, percent: u64) -> Result<u64> {
         let size = self.seek(SeekFrom::End(0))?;
-        eprintln!("size {}", size);
-
         let offset = (size * percent / 100) as u64;
-        eprintln!("ofst {}", offset);
 
         self.seek(SeekFrom::Start(offset))
     }
