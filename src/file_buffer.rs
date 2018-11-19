@@ -4,7 +4,6 @@ use std::io::{self, Initializer, Error, ErrorKind};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
-use input::LEvent;
 use line_num_cache::{LineNum, LineNumCache};
 use util;
 use string_util;
@@ -28,7 +27,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         unsafe {
             let mut buffer = Vec::with_capacity(cap);
             buffer.set_len(cap);
-            inner.initializer().initialize(&mut buffer);
+//            inner.initializer().initialize(&mut buffer);
             BiBufReader {
                 inner,
                 buf: buffer.into_boxed_slice(),

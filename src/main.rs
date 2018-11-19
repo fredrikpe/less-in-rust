@@ -21,8 +21,8 @@ mod line_num_cache;
 mod printer;
 mod util;
 mod string_util;
+mod commands;
 
-use input::LEvent;
 
 fn main() {
     let matches = App::new("My Super Program")
@@ -45,75 +45,33 @@ fn main() {
         Err(_) => return (),
     };
 
-    let mut state = State { quit: false };
 
-    let mut bi_reader = file_buffer::BiBufReader::new(file);
-
-    match run(&mut state, &mut bi_reader) {
-        Ok(()) => return (),
-        Err(()) => return (),
+    if let Err(e) = run(file) {
+        std::process::exit(1);
     }
 }
 
-struct State {
-    quit: bool,
-}
-
-impl State {
-    pub fn update(&mut self, input_event: &LEvent) {
-        match input_event {
-            LEvent::UpOneLine => (),
-            LEvent::DownOneLine => (),
-            LEvent::Quit => self.quit = true,
-            _ => {},
-        }
-    }
-}
-
-fn run<R: Read + Seek>(
-    state: &mut State,
-    bi_reader: &mut file_buffer::BiBufReader<R>,
-) -> Result<(), ()> {
+fn run(file: File) -> Result<(), ()> {
     let mut printer = printer::Printer {
         out: AlternateScreen::from(stdout().into_raw_mode().unwrap()),
     };
 
-    let mut input_event = LEvent::NoOp;
+    let mut state = commands::State::new(file_buffer::BiBufReader::new(file));
+
+    let mut input_event = input::Input::NoOp;
 
     loop {
-        if let Err(e) = update_reader(bi_reader, &input_event) {
-            eprintln!("Error in update_reader: {}", e);
+        let _ = printer.print_screen(&state.page());
+
+        let input = input::parse_input();
+
+        if let Err(e) = state.update(&input) {
+            eprintln!("Error in state.update: {}", e);
         }
-
-        let _ = printer.print_screen(bi_reader);
-
-        input_event = input::get_input();
-
-        state.update(&input_event);
 
         if state.quit {
             break;
         }
-    }
-
-    Ok(())
-}
-
-fn update_reader<R: Read + Seek>(
-    reader: &mut file_buffer::BiBufReader<R>,
-    action: &LEvent,
-) -> Result<(), std::io::Error> {
-    match action {
-        LEvent::UpOneLine => reader.up_n_lines(1)?,
-        LEvent::DownOneLine => reader.down_n_lines(1)?,
-        LEvent::DownHalfScreen => reader.down_n_lines(util::screen_height_half())?,
-        LEvent::UpHalfScreen => reader.up_n_lines(util::screen_height_half())?,
-        LEvent::DownOneScreen => reader.down_n_lines(util::screen_height())?,
-        LEvent::UpOneScreen => reader.up_n_lines(util::screen_height())?,
-        LEvent::JumpBeginning => reader.jump_percentage(0)?,
-        LEvent::JumpEnd => reader.jump_end()?,
-        LEvent::NoOp => (),
-        _ => (),
     }
 
     Ok(())

@@ -19,22 +19,11 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn print_screen<R: Read + Seek>(
-        &mut self,
-        reader: &mut BiBufReader<R>,
-    ) -> Result<(), ()> {
+    pub fn print_screen(&mut self, page: &Vec<u8>) -> Result<(), ()> {
         self.clear_screen();
 
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
-
-        let page = match reader.page() {
-            Ok(s) => s,
-            Err(e) => {
-                eprintln!("error: {}", e);
-                return Ok(());
-            }
-        };
 
         let page_string = match str::from_utf8(&page[..]) {
             Ok(s) => s,
