@@ -19,13 +19,24 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn print_screen(
+    pub fn render(
         &mut self,
         page: &Vec<u8>,
         command_line_text: String,
     ) -> Result<(), ()> {
         self.clear_screen();
 
+        self.print_page(page)?;
+        self.print_command_line(command_line_text);
+        self.flush();
+
+        Ok(())
+    }
+
+    pub fn print_page(
+        &mut self,
+        page: &Vec<u8>,
+    ) -> Result<(), ()> {
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
 
@@ -60,19 +71,23 @@ impl<W: Write> Printer<W> {
             }
         }
 
-        self.write_command_line(command_line_text, screen_line_number);
-        self.flush();
+        for i in screen_line_number..(screen_height - 1) {
+            eprintln!("X");
+            write!(self.out, "~\r");
+            writeln!(self.out);
+        }
 
         Ok(())
     }
 
-    fn write_command_line(&mut self, command_line_text: String, line_num: u16) {
+    fn print_command_line(&mut self, command_line_text: String) {
+        let (screen_width, screen_height) = util::screen_width_height();
         write!(self.out, "\n\r");
         write!(self.out, "{}", command_line_text);
         write!(
             self.out,
             "{}",
-            termion::cursor::Goto((command_line_text.len() + 1) as u16, line_num + 1)
+            termion::cursor::Goto((command_line_text.len() + 1) as u16, screen_height + 1)
         );
     }
 

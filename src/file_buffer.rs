@@ -101,7 +101,7 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         self.seek(SeekFrom::Current(-bytes_read))?;
 
-        Ok(page_buf)
+        Ok(page_buf[..bytes_read as usize].to_vec())
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {

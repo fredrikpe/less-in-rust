@@ -60,7 +60,7 @@ fn run(file: File) -> Result<(), ()> {
     let mut input_event = input::Input::NoOp;
 
     loop {
-        let _ = printer.print_screen(&state.page(), state.command_line_text());
+        let _ = printer.render(&state.page(), state.command_line_text());
 
         let input = input::parse_input();
 
