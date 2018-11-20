@@ -3,7 +3,6 @@ use std::io::{self, Error, ErrorKind, Initializer};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
-use line_num_cache::{LineNum, LineNumCache};
 use string_util;
 use util;
 

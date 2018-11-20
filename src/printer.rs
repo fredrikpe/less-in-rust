@@ -1,10 +1,7 @@
-use file_buffer::BiBufReader;
-
 use termion::screen::AlternateScreen;
-use termion::terminal_size;
 use unicode_segmentation::UnicodeSegmentation;
 
-use std::io::{Read, Seek, Write};
+use std::io::Write;
 use std::str;
 
 use string_util;
@@ -19,11 +16,7 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn render(
-        &mut self,
-        page: &Vec<u8>,
-        command_line_text: String,
-    ) -> Result<(), ()> {
+    pub fn render(&mut self, page: &Vec<u8>, command_line_text: String) -> Result<(), ()> {
         self.clear_screen();
 
         self.print_page(page)?;
@@ -33,10 +26,7 @@ impl<W: Write> Printer<W> {
         Ok(())
     }
 
-    pub fn print_page(
-        &mut self,
-        page: &Vec<u8>,
-    ) -> Result<(), ()> {
+    pub fn print_page(&mut self, page: &Vec<u8>) -> Result<(), ()> {
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
 
@@ -45,7 +35,7 @@ impl<W: Write> Printer<W> {
             Err(e) => return Err(()),
         };
 
-        write!(self.out, "{}", termion::cursor::Goto(1, 1));
+        self.write(&termion::cursor::Goto(1, 1));
 
         let mut grapheme_count = 0;
         for grapheme in UnicodeSegmentation::graphemes(&page_string[..], true) {
@@ -56,25 +46,21 @@ impl<W: Write> Printer<W> {
             if grapheme_count >= screen_width as usize {
                 grapheme_count = 0;
                 screen_line_number += 1;
-                writeln!(self.out);
-                write!(self.out, "\r");
+                self.write(&"\n\r");
             }
 
             if string_util::is_newline(grapheme) {
                 grapheme_count = 0;
                 screen_line_number += 1;
-                writeln!(self.out);
-                write!(self.out, "\r");
+                self.write(&"\n\r");
             } else {
                 grapheme_count += 1;
-                write!(self.out, "{}", grapheme);
+                self.write(&grapheme);
             }
         }
 
         for i in screen_line_number..(screen_height - 1) {
-            eprintln!("X");
-            write!(self.out, "~\r");
-            writeln!(self.out);
+            self.write(&"~\r\n");
         }
 
         Ok(())
@@ -82,24 +68,19 @@ impl<W: Write> Printer<W> {
 
     fn print_command_line(&mut self, command_line_text: String) {
         let (screen_width, screen_height) = util::screen_width_height();
-        write!(self.out, "\n\r");
-        write!(self.out, "{}", command_line_text);
-        write!(
-            self.out,
-            "{}",
-            termion::cursor::Goto((command_line_text.len() + 1) as u16, screen_height + 1)
-        );
-    }
-
-    pub fn print2<R: Read + Seek>(&mut self, reader: &mut BiBufReader<R>) -> Result<(), ()> {
-        write!(self.out, "{}", termion::cursor::Goto(1, 1));
-        self.clear_screen();
-        self.flush();
-
-        Ok(())
+        self.write(&"\n\r");
+        self.write(&command_line_text);
+        self.write(&termion::cursor::Goto(
+            (command_line_text.len() + 1) as u16,
+            screen_height + 1,
+        ));
     }
 
     fn clear_screen(&mut self) {
-        write!(self.out, "{}", termion::clear::All);
+        self.write(&termion::clear::All);
+    }
+
+    fn write<S: std::fmt::Display>(&mut self, s: &S) {
+        let _ = write!(self.out, "{}", s);
     }
 }

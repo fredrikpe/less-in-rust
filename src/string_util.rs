@@ -1,39 +1,9 @@
-use unicode_segmentation::GraphemeIndices;
+//use unicode_segmentation::GraphemeIndices;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
     for (index, (offset, _)) in UnicodeSegmentation::grapheme_indices(buf, true).enumerate() {
         if index == n {
-            return Some(offset);
-        }
-    }
-
-    None
-}
-
-pub fn next_newline_offset(buf: &str) -> Option<usize> {
-    find_offset(
-        UnicodeSegmentation::grapheme_indices(buf, true),
-        |x: &str| is_newline(x),
-    )
-}
-
-pub fn aprev_newline_offset(buf: &str) -> Option<usize> {
-    find_offset(
-        UnicodeSegmentation::grapheme_indices(buf, true).rev(),
-        |x: &str| is_newline(x),
-    )
-}
-
-pub fn find_offset<'a, P, I: Iterator<Item = (usize, &'a str)>>(
-    grapheme_indices: I,
-    mut predicate: P,
-) -> Option<usize>
-where
-    P: FnMut(&str) -> bool,
-{
-    for (offset, grapheme) in grapheme_indices {
-        if predicate(grapheme) {
             return Some(offset);
         }
     }
@@ -59,19 +29,6 @@ pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> Opti
 
 pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
     nth_newline_wrapped(1, buf, screen_width)
-}
-
-pub fn last_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
-    let mut last = Some(0);
-    for (index, (offset, grapheme)) in
-        UnicodeSegmentation::grapheme_indices(buf, true).enumerate()
-    {
-        if is_newline(grapheme) || index >= screen_width {
-            last = Some(offset);
-        }
-    }
-
-    last
 }
 
 pub fn last_newline_offset(buf: &str) -> Option<usize> {

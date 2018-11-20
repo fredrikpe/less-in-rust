@@ -1,7 +1,7 @@
 use termion::event::Event;
 use termion::event::Key;
-use termion::event::MouseButton;
-use termion::event::MouseEvent;
+//use termion::event::MouseButton;
+//use termion::event::MouseEvent;
 use termion::input::TermRead;
 
 use std::io::stdin;
