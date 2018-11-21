@@ -1,8 +1,12 @@
+
+use termion::color;
 use termion::screen::AlternateScreen;
 use unicode_segmentation::UnicodeSegmentation;
 
 use std::io::Write;
 use std::str;
+
+use grep::matcher::Match;
 
 use string_util;
 use util;
@@ -16,29 +20,34 @@ impl<W: Write> Printer<W> {
         self.out.flush().unwrap();
     }
 
-    pub fn render(&mut self, page: &Vec<u8>, command_line_text: String) -> Result<(), ()> {
+    pub fn render(
+        &mut self,
+        page: &(u64, Vec<u8>),
+        matches: &Vec<(u64, Match)>,
+        command_line_text: String,
+    ) -> Result<(), ()> {
         self.clear_screen();
 
-        self.print_page(page)?;
+        self.print_page(&page.1, search_offsets(page.0, matches))?;
         self.print_command_line(command_line_text);
         self.flush();
 
         Ok(())
     }
 
-    pub fn print_page(&mut self, page: &Vec<u8>) -> Result<(), ()> {
+    pub fn print_page( &mut self, page: &Vec<u8>, search_offsets: Vec<u64>) -> Result<(), ()> {
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
 
         let page_string = match str::from_utf8(&page[..]) {
             Ok(s) => s,
-            Err(e) => return Err(()),
+            Err(_e) => return Err(()),
         };
 
         self.write(&termion::cursor::Goto(1, 1));
 
         let mut grapheme_count = 0;
-        for grapheme in UnicodeSegmentation::graphemes(&page_string[..], true) {
+        for (index, grapheme) in UnicodeSegmentation::grapheme_indices(&page_string[..], true) {
             if screen_line_number >= screen_height - 1 {
                 break;
             }
@@ -55,19 +64,18 @@ impl<W: Write> Printer<W> {
                 self.write(&"\n\r");
             } else {
                 grapheme_count += 1;
-                self.write(&grapheme);
+                self.write_grapheme(&grapheme, search_offsets.contains(&(index as u64)));
             }
         }
 
-        for i in screen_line_number..(screen_height - 1) {
+        for _ in screen_line_number..(screen_height - 1) {
             self.write(&"~\r\n");
         }
 
         Ok(())
     }
-
     fn print_command_line(&mut self, command_line_text: String) {
-        let (screen_width, screen_height) = util::screen_width_height();
+        let (_screen_width, screen_height) = util::screen_width_height();
         self.write(&"\n\r");
         self.write(&command_line_text);
         self.write(&termion::cursor::Goto(
@@ -80,7 +88,36 @@ impl<W: Write> Printer<W> {
         self.write(&termion::clear::All);
     }
 
+    fn write_grapheme(&mut self, grapheme: &str, highlight: bool) {
+        if highlight {
+            let _ = write!(self.out, "{}{}", color::Bg(color::Red), grapheme);
+            let _ = write!(self.out, "{}", color::Bg(color::Reset));
+        } else {
+            let _ = write!(self.out, "{}", grapheme);
+        }
+    }
+
     fn write<S: std::fmt::Display>(&mut self, s: &S) {
         let _ = write!(self.out, "{}", s);
     }
 }
+
+fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
+    let mut res = Vec::new();
+    for (offset, mat) in matches {
+        eprintln!("offset, mat {},  {:?}", offset, mat);
+        if *offset < start { continue }
+        let s = *offset + mat.start() as u64 - start;
+        let e = *offset + mat.end() as u64 - start;
+        eprintln!("start, end {},  {:?}", s, e);
+        for i in s..e {
+            res.push(i);
+        }
+    }
+
+    eprintln!("start, res {},  {:?}", start, res);
+
+    res
+}
+
+

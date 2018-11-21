@@ -8,7 +8,6 @@ extern crate unicode_segmentation;
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 
-use std::fs::File;
 use std::io::stdout;
 use std::result::Result;
 
@@ -19,6 +18,7 @@ mod file_buffer;
 mod input;
 mod printer;
 mod searcher;
+mod standard;
 mod string_util;
 mod util;
 
@@ -40,7 +40,7 @@ fn main() {
 
     let input_file = matches.value_of("input_file").unwrap();
 
-    if let Err(e) = run(input_file) {
+    if let Err(_) = run(input_file) {
         std::process::exit(1);
     }
 }
@@ -52,10 +52,12 @@ fn run(input_file: &str) -> Result<(), ()> {
 
     let mut state = commands::State::new(input_file);
 
-    let mut input_event = input::Input::NoOp;
-
     loop {
-        let _ = printer.render(&state.page(), state.command_line_text());
+        let _ = printer.render(
+            &state.page(),
+            &state.matches,
+            state.command_line_text().clone(),
+        );
 
         let input = input::parse_input();
 

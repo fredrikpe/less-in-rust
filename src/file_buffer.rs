@@ -1,8 +1,10 @@
+
 use std::io::BufRead;
 use std::io::{self, Error, ErrorKind, Initializer};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
+use searcher::OffsetSink;
 use string_util;
 use util;
 
@@ -17,13 +19,10 @@ pub struct BiBufReader<R> {
 
 impl<R: Read + Seek> BiBufReader<R> {
     pub fn new(inner: R) -> BiBufReader<R> {
-        BiBufReader::with_capacity(DEFAULT_BUF_SIZE, inner)
-    }
-
-    pub fn with_capacity(cap: usize, inner: R) -> BiBufReader<R> {
         unsafe {
-            let mut buffer = Vec::with_capacity(cap);
-            buffer.set_len(cap);
+            let mut buffer = Vec::with_capacity(DEFAULT_BUF_SIZE);
+            buffer.set_len(DEFAULT_BUF_SIZE);
+            // TODO: investigate necessety of next line
             //            inner.initializer().initialize(&mut buffer);
             BiBufReader {
                 inner,
@@ -35,12 +34,12 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     pub fn jump_percentage(&mut self, percent: u64) -> Result<()> {
-        let pos = self.seek_percent(percent)?;
+        let _ = self.seek_percent(percent)?;
         self.up_n_lines(1)
     }
 
     pub fn jump_end(&mut self) -> Result<()> {
-        let pos = self.seek_percent(100)?;
+        let _ = self.seek_percent(100)?;
         self.up_n_lines(util::screen_height() - 1)
     }
 
@@ -66,7 +65,7 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     pub fn down_n_lines(&mut self, n: usize) -> Result<()> {
-        let (buf, size) = self.make_buf_down()?;
+        let (buf, _) = self.make_buf_down()?;
 
         let (screen_width, _) = util::screen_width_height();
 
@@ -83,14 +82,13 @@ impl<R: Read + Seek> BiBufReader<R> {
         Ok(())
     }
 
-    pub fn page(&mut self) -> Result<Vec<u8>> {
+    pub fn page(&mut self) -> Result<(u64, Vec<u8>)> {
         let size = self.page_size();
 
         let mut page_buf = Vec::with_capacity(size);
         page_buf.resize(size, 0);
 
-        let mut bytes_read: i64 = 0;
-        bytes_read = match self.read(&mut page_buf[..]) {
+        let bytes_read = match self.read(&mut page_buf[..]) {
             Err(e) => {
                 eprintln!("errorrrr {}", e);
                 0
@@ -98,9 +96,9 @@ impl<R: Read + Seek> BiBufReader<R> {
             Ok(s) => s as i64,
         };
 
-        self.seek(SeekFrom::Current(-bytes_read))?;
+        let offset = self.seek(SeekFrom::Current(-bytes_read))?;
 
-        Ok(page_buf[..bytes_read as usize].to_vec())
+        Ok((offset, page_buf[..bytes_read as usize].to_vec()))
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
@@ -112,7 +110,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         let mut buf = vec![0; size];
         let new_pos = self.seek(SeekFrom::Current(-(size as i64)))?;
 
-        let bytes_read = self.read(&mut buf[..size])?;
+        let _bytes_read = self.read(&mut buf[..size])?;
         //debug_assert!(bytes_read as u64 == size as u64);
 
         Ok(buf)

@@ -10,7 +10,8 @@ use std::io::stdin;
 pub enum Input {
     Ctrl(char),
     Char(char),
-    Num(u32),
+    Num(char, u32),
+    Backspace,
     NoOp,
 }
 
@@ -22,6 +23,8 @@ pub fn parse_input() -> Input {
 
             Event::Key(Key::Ctrl(c)) => Input::Ctrl(c),
 
+            Event::Key(Key::Backspace) => Input::Backspace,
+
             //    Event::Mouse(MouseEvent::Press(MouseButton::WheelUp, _, _))
             _ => Input::NoOp,
         };
@@ -31,7 +34,7 @@ pub fn parse_input() -> Input {
 
 pub fn parse_char(c: char) -> Input {
     return match c.to_digit(10) {
-        Some(n) => Input::Num(n),
+        Some(n) => Input::Num(c, n),
         None => Input::Char(c),
     };
 }

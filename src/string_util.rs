@@ -156,7 +156,6 @@ mod tests {
         let t = "";
         let u = "\naa\n";
         let v = "aaaaaa";
-        let w = "\n\n\n\n\n\n\n\n";
         let x = "\naaaa\naa\n";
         assert_eq!(nth_newline_wrapped(1, s, 3), Some(1));
         assert_eq!(nth_newline_wrapped(1, t, 3), None);
