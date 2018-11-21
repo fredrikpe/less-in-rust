@@ -105,17 +105,15 @@ impl<W: Write> Printer<W> {
 fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
     let mut res = Vec::new();
     for (offset, mat) in matches {
-        eprintln!("offset, mat {},  {:?}", offset, mat);
-        if *offset < start { continue }
+        if (*offset + mat.start() as u64) < start { continue }
         let s = *offset + mat.start() as u64 - start;
         let e = *offset + mat.end() as u64 - start;
-        eprintln!("start, end {},  {:?}", s, e);
         for i in s..e {
             res.push(i);
         }
     }
 
-    eprintln!("start, res {},  {:?}", start, res);
+    eprintln!("matchae len {}", matches.len());
 
     res
 }

@@ -53,244 +53,1019 @@ warning: function is never used: `snd_last_newline_wrapped`
 66 | pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Finished dev [unoptimized + debuginfo] target(s) in 1.52s
-     Running `target/debug/less2 --input_file test_utf8.txt`
-start, res 0,  []
-start, res 0,  []
-start, res 0,  []
-start, res 0,  []
+    Finished release [optimized] target(s) in 2.10s
+     Running `target/release/less2 --input_file test_input.txt`
+matchae len 0
+matchae len 0
+matchae len 0
+matchae len 0
+matchae len 0
+matchae len 0
 enter pressed
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-backspace
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-backspace
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-backspace
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-backspace
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-offset, mat 1904,  Match { start: 33, end: 35 }
-start, end 1937,  1939
-start, res 0,  [1937, 1938]
-enter pressed
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11761,  11763
-start, res 0,  [11761, 11762]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11760,  11762
-start, res 1,  [11760, 11761]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11699,  11701
-start, res 62,  [11699, 11700]
-nth 2
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-backspace
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-backspace
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-backspace
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-offset, mat 11716,  Match { start: 45, end: 47 }
-start, end 11759,  11761
-start, res 2,  [11759, 11760]
-enter pressed
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11757,  11759
-start, res 2,  [11757, 11758]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11697,  11699
-start, res 62,  [11697, 11698]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11696,  11698
-start, res 63,  [11696, 11697]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11659,  11661
-start, res 100,  [11659, 11660]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11550,  11552
-start, res 209,  [11550, 11551]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11549,  11551
-start, res 210,  [11549, 11550]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11487,  11489
-start, res 272,  [11487, 11488]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11486,  11488
-start, res 273,  [11486, 11487]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11485,  11487
-start, res 274,  [11485, 11486]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11424,  11426
-start, res 335,  [11424, 11425]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11356,  11358
-start, res 403,  [11356, 11357]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11355,  11357
-start, res 404,  [11355, 11356]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11354,  11356
-start, res 405,  [11354, 11355]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11278,  11280
-start, res 481,  [11278, 11279]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11277,  11279
-start, res 482,  [11277, 11278]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11251,  11253
-start, res 508,  [11251, 11252]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11250,  11252
-start, res 509,  [11250, 11251]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11131,  11133
-start, res 628,  [11131, 11132]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11130,  11132
-start, res 629,  [11130, 11131]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11031,  11033
-start, res 728,  [11031, 11032]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 11030,  11032
-start, res 729,  [11030, 11031]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10979,  10981
-start, res 780,  [10979, 10980]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10978,  10980
-start, res 781,  [10978, 10979]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10948,  10950
-start, res 811,  [10948, 10949]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10947,  10949
-start, res 812,  [10947, 10948]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10891,  10893
-start, res 868,  [10891, 10892]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10843,  10845
-start, res 916,  [10843, 10844]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10842,  10844
-start, res 917,  [10842, 10843]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10837,  10839
-start, res 922,  [10837, 10838]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10836,  10838
-start, res 923,  [10836, 10837]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10769,  10771
-start, res 990,  [10769, 10770]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10768,  10770
-start, res 991,  [10768, 10769]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10730,  10732
-start, res 1029,  [10730, 10731]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10729,  10731
-start, res 1030,  [10729, 10730]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10594,  10596
-start, res 1165,  [10594, 10595]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10543,  10545
-start, res 1216,  [10543, 10544]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10482,  10484
-start, res 1277,  [10482, 10483]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10431,  10433
-start, res 1328,  [10431, 10432]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10372,  10374
-start, res 1387,  [10372, 10373]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10321,  10323
-start, res 1438,  [10321, 10322]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10267,  10269
-start, res 1492,  [10267, 10268]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10216,  10218
-start, res 1543,  [10216, 10217]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10154,  10156
-start, res 1605,  [10154, 10155]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10103,  10105
-start, res 1656,  [10103, 10104]
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 10032,  10034
-start, res 1727,  [10032, 10033]
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
+matchae len 434
 half screen 30
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 8413,  8415
-start, res 3346,  [8413, 8414]
+matchae len 434
 half screen 30
-offset, mat 11716,  Match { start: 43, end: 45 }
-start, end 5988,  5990
-start, res 5771,  [5988, 5989]
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28016
+matchae len 434
+half screen 30
+nth 24072
+matchae len 434
+half screen 30
+nth 20128
+matchae len 434
+half screen 30
+nth 16184
+matchae len 434
+half screen 30
+nth 12240
+matchae len 434
+half screen 30
+nth 8296
+matchae len 434
+half screen 30
+nth 4352
+matchae len 434
+half screen 30
+nth 408
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 27608
+matchae len 434
+half screen 30
+nth 23664
+matchae len 434
+half screen 30
+nth 19720
+matchae len 434
+half screen 30
+nth 15776
+matchae len 434
+half screen 30
+nth 11832
+matchae len 434
+half screen 30
+nth 7888
+matchae len 434
+half screen 30
+nth 3944
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 27608
+matchae len 434
+half screen 30
+nth 23664
+matchae len 434
+half screen 30
+nth 19720
+matchae len 434
+half screen 30
+nth 15776
+matchae len 434
+half screen 30
+nth 11832
+matchae len 434
+half screen 30
+nth 7888
+matchae len 434
+half screen 30
+nth 3944
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+Error in state.update: Reached EOF. Can't make down buffer.
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28696
+matchae len 434
+half screen 30
+nth 28016
+matchae len 434
+half screen 30
+nth 24072
+matchae len 434
+half screen 30
+nth 20128
+matchae len 434
+half screen 30
+nth 16184
+matchae len 434
+half screen 30
+nth 12240
+matchae len 434
+half screen 30
+nth 8296
+matchae len 434
+half screen 30
+nth 4352
+matchae len 434
+half screen 30
+nth 408
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
+half screen 30
+nth 0
+matchae len 434
