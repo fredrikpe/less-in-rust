@@ -4,7 +4,6 @@ use std::io::{self, Error, ErrorKind, Initializer};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
-use searcher::OffsetSink;
 use string_util;
 use util;
 
@@ -31,6 +30,11 @@ impl<R: Read + Seek> BiBufReader<R> {
                 cap: 0,
             }
         }
+    }
+
+    pub fn jump_offset(&mut self, offset: u64) -> Result<()> {
+        self.seek(SeekFrom::Start(offset))?;
+        Ok(())
     }
 
     pub fn jump_percentage(&mut self, percent: u64) -> Result<()> {
@@ -156,6 +160,10 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         eprintln!("offset {}", offset);
         self.seek(SeekFrom::Start(offset))
+    }
+
+    pub fn current_offset(&mut self) -> Result<u64> {
+        self.seek(SeekFrom::Current(0))
     }
 }
 

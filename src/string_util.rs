@@ -1,6 +1,11 @@
 //use unicode_segmentation::GraphemeIndices;
 use unicode_segmentation::UnicodeSegmentation;
 
+pub fn grapheme_count(buf: &str) -> usize
+{
+    UnicodeSegmentation::graphemes(buf, true).count()
+}
+
 pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
     for (index, (offset, _)) in UnicodeSegmentation::grapheme_indices(buf, true).enumerate() {
         if index == n {

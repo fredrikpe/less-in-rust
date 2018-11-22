@@ -24,6 +24,8 @@ pub enum Command {
     JumpBeginning,
     JumpEnd,
     JumpPercent(u64),
+    JumpNextMatch,
+    JumpPrevMatch,
 
     Search(String),
 
@@ -50,6 +52,7 @@ impl State {
     pub fn new(input_file: &str) -> State {
         let file = match File::open(input_file) {
             Ok(f) => f,
+            // TODO: Fails on file not found
             Err(_) => panic!("panic in state constructor"),
         };
 
@@ -77,6 +80,8 @@ impl State {
             Command::JumpBeginning => self.reader.jump_percentage(0)?,
             Command::JumpEnd => self.reader.jump_end()?,
             Command::JumpPercent(p) => self.reader.jump_percentage(p)?,
+            Command::JumpNextMatch => self.try_jump_next_match()?,
+            Command::JumpPrevMatch => self.try_jump_prev_match()?,
             Command::Search(_) => {
                 self.matches.clear();
                 self.do_search()?
@@ -113,6 +118,9 @@ impl State {
             Input::Char('g') => Command::JumpBeginning,
             Input::Char('G') => Command::JumpEnd,
             Input::Char('p') => Command::JumpPercent(self.total_number()),
+
+            Input::Char('n') => Command::JumpNextMatch,
+            Input::Char('N') => Command::JumpPrevMatch,
 
             Input::Char('/') => {
                 self.mode = Mode::Search;
@@ -186,6 +194,26 @@ impl State {
         self.mode = Mode::Normal;
 
         ret
+    }
+
+    fn try_jump_next_match(&mut self) -> Result<(), std::io::Error> {
+        let cur_offset = self.reader.current_offset()?;
+        return match self.matches.iter()
+            .find(| (offset, _) | *offset > cur_offset)
+        {
+            Some((offset, _)) => self.reader.jump_offset(*offset),
+            None => Ok(()),
+        }
+    }
+
+    fn try_jump_prev_match(&mut self) -> Result<(), std::io::Error> {
+        let cur_offset = self.reader.current_offset()?;
+        return match self.matches.iter().rev()
+            .find(| (offset, _) | *offset < cur_offset)
+        {
+            Some((offset, _)) => self.reader.jump_offset(*offset),
+            None => Ok(()),
+        }
     }
 
     fn add_number(&mut self, n: u32) {

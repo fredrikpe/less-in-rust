@@ -79,7 +79,7 @@ impl<W: Write> Printer<W> {
         self.write(&"\n\r");
         self.write(&command_line_text);
         self.write(&termion::cursor::Goto(
-            (command_line_text.len() + 1) as u16,
+            (string_util::grapheme_count(&command_line_text[..]) + 1) as u16,
             screen_height + 1,
         ));
     }
@@ -112,8 +112,6 @@ fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
             res.push(i);
         }
     }
-
-    eprintln!("matchae len {}", matches.len());
 
     res
 }
