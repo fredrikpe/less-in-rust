@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Error, ErrorKind};
+use std::io::{Seek, Read, Error, ErrorKind};
 
 use grep::matcher::Match;
 use grep::regex::RegexMatcher;
@@ -10,6 +10,7 @@ use input::Input;
 use searcher;
 use standard::StandardSink;
 use util;
+use valid_reader::ValidReader;
 
 #[derive(Debug, PartialEq)]
 pub enum Command {
@@ -39,7 +40,7 @@ pub enum Mode {
 }
 
 pub struct State {
-    pub reader: BiBufReader<File>,
+    pub reader: BiBufReader<ValidReader<File>>,
     pub quit: bool,
     mode: Mode,
     buf: Vec<u32>,
@@ -57,7 +58,7 @@ impl State {
         };
 
         State {
-            reader: file_buffer::BiBufReader::new(file),
+            reader: file_buffer::BiBufReader::new(ValidReader::new(file)),
             quit: false,
             mode: Mode::Normal,
             buf: Vec::new(),
@@ -229,7 +230,13 @@ impl State {
     }
 
     pub fn page(&mut self) -> (u64, Vec<u8>) {
-        return self.reader.page().unwrap();
+        return match self.reader.page() {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("{}", e);
+                (1, Vec::new())
+           }
+       }
     }
 
     pub fn command_line_text(&self) -> String {

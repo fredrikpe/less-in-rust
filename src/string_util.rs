@@ -1,8 +1,8 @@
-//use unicode_segmentation::GraphemeIndices;
+
+use unicode_segmentation::GraphemeCursor;
 use unicode_segmentation::UnicodeSegmentation;
 
-pub fn grapheme_count(buf: &str) -> usize
-{
+pub fn grapheme_count(buf: &str) -> usize {
     UnicodeSegmentation::graphemes(buf, true).count()
 }
 
@@ -16,24 +16,22 @@ pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
     None
 }
 
-pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> Option<usize> {
+pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> usize {
     let mut grapheme_count = 0;
+    let mut current_pos = 0;
     for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
         grapheme_count += 1;
+        current_pos = offset + grapheme_size(grapheme);
         if is_newline(grapheme) || grapheme_count >= screen_width {
             grapheme_count = 0;
             n -= 1;
             if n == 0 {
-                return Some(offset + grapheme_size(grapheme));
+                break;
             }
         }
     }
 
-    None
-}
-
-pub fn first_newline_wrapped(buf: &str, screen_width: usize) -> Option<usize> {
-    nth_newline_wrapped(1, buf, screen_width)
+    current_pos
 }
 
 pub fn last_newline_offset(buf: &str) -> Option<usize> {
@@ -60,10 +58,8 @@ pub fn nth_last_newline_wrapped(n: usize, buf: &str, screen_width: usize) -> usi
     }
 
     return if offsets.len() < n {
-        eprintln!("nth 0");
         0
     } else {
-        eprintln!("nth {}", offsets[offsets.len() - n].unwrap());
         offsets[offsets.len() - n].unwrap()
     };
 }
@@ -78,6 +74,15 @@ pub fn is_newline(grapheme: &str) -> bool {
 
 pub fn grapheme_size(grapheme: &str) -> usize {
     grapheme.len()
+}
+
+pub fn make_valid(buf: Vec<u8>) -> Vec<u8> {
+    let mut offset = 0;
+    while let Err(_) = std::str::from_utf8(&buf[offset..]) {
+        offset += 1;
+    }
+
+    buf[offset..].to_vec()
 }
 
 #[cfg(test)]
@@ -136,23 +141,15 @@ mod tests {
         let u = "\naa\n";
         let v = "aaaaaa";
         let w = "\n\n\n\n\n\n\n\n\n\n";
+        let x = "ฤๅหาใครค้ำชูกู้บรรลังก์ ฯ";
         assert_eq!(nth_last_newline_wrapped(2, s, 3), 0);
         assert_eq!(nth_last_newline_wrapped(2, t, 3), 0);
         assert_eq!(nth_last_newline_wrapped(2, u, 3), 1);
         assert_eq!(nth_last_newline_wrapped(2, v, 3), 3);
         assert_eq!(nth_last_newline_wrapped(10, w, 3), 1);
-    }
-
-    #[test]
-    fn test_first_newline_wrapped() {
-        let s = "\n";
-        let t = "";
-        let u = "\naa\n";
-        let v = "aaaaaa";
-        assert_eq!(first_newline_wrapped(s, 3), Some(1));
-        assert_eq!(first_newline_wrapped(t, 3), None);
-        assert_eq!(first_newline_wrapped(u, 3), Some(1));
-        assert_eq!(first_newline_wrapped(v, 3), Some(3));
+        // When we give an incomplete grapheme
+        assert!(std::panic::catch_unwind(|| { nth_last_newline_wrapped(56, &x[1..], 131); }).is_err());
+        assert!(std::panic::catch_unwind(|| { nth_last_newline_wrapped(56, &x[..x.len() - 1], 131); }).is_err());
     }
 
     #[test]
@@ -162,10 +159,11 @@ mod tests {
         let u = "\naa\n";
         let v = "aaaaaa";
         let x = "\naaaa\naa\n";
-        assert_eq!(nth_newline_wrapped(1, s, 3), Some(1));
-        assert_eq!(nth_newline_wrapped(1, t, 3), None);
-        assert_eq!(nth_newline_wrapped(1, u, 3), Some(1));
-        assert_eq!(nth_newline_wrapped(1, v, 3), Some(3));
-        assert_eq!(nth_newline_wrapped(2, x, 3), Some(4));
+        assert_eq!(nth_newline_wrapped(1, s, 3), 1);
+        assert_eq!(nth_newline_wrapped(1, t, 3), 0);
+        assert_eq!(nth_newline_wrapped(1, u, 3), 1);
+        assert_eq!(nth_newline_wrapped(1, v, 3), 3);
+        assert_eq!(nth_newline_wrapped(2, x, 3), 4);
+        assert_eq!(nth_newline_wrapped(2, s, 3), 1);
     }
 }

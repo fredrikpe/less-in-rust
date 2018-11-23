@@ -39,10 +39,14 @@ impl<W: Write> Printer<W> {
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
 
-        let page_string = match str::from_utf8(&page[..]) {
-            Ok(s) => s,
-            Err(_e) => return Err(()),
-        };
+        unsafe {
+        let page_string = str::from_utf8_unchecked(&page[..]);
+        //let page_string = match str::from_utf8_unchecked(&page[..]) {
+            //Ok(s) => s,
+            //Err(_e) => return Err(()),
+        //};
+
+        //eprintln!("page_string.len {}", page_string.len());
 
         self.write(&termion::cursor::Goto(1, 1));
 
@@ -71,6 +75,7 @@ impl<W: Write> Printer<W> {
         for _ in screen_line_number..(screen_height - 1) {
             self.write(&"~\r\n");
         }
+        }
 
         Ok(())
     }
@@ -90,7 +95,7 @@ impl<W: Write> Printer<W> {
 
     fn write_grapheme(&mut self, grapheme: &str, highlight: bool) {
         if highlight {
-            let _ = write!(self.out, "{}{}", color::Bg(color::Red), grapheme);
+            let _ = write!(self.out, "{}{}", color::Bg(color::White), grapheme);
             let _ = write!(self.out, "{}", color::Bg(color::Reset));
         } else {
             let _ = write!(self.out, "{}", grapheme);

@@ -1,3 +1,4 @@
+#![feature(align_offset)]
 #![feature(read_initializer)]
 
 extern crate clap;
@@ -10,6 +11,7 @@ use termion::screen::AlternateScreen;
 
 use std::io::stdout;
 use std::result::Result;
+use std::path::Path;
 
 use clap::{App, Arg};
 
@@ -21,6 +23,9 @@ mod searcher;
 mod standard;
 mod string_util;
 mod util;
+mod args;
+mod valid_reader;
+mod utf8_validation;
 
 fn main() {
     let matches = App::new("My Super Program")
@@ -28,17 +33,19 @@ fn main() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .arg(
-            Arg::with_name("input_file")
-                .short("if")
-                .long("input_file")
+            Arg::with_name("input_files")
+                //.short("if")
+                //.long("input_file")
                 .value_name("FILE")
                 .help("Sets a custom config file")
                 .takes_value(true)
-                .required(true),
+                .required(true)
+                .multiple(true),
         )
         .get_matches();
 
-    let input_file = matches.value_of("input_file").unwrap();
+    let input_file = matches.value_of("input_files").unwrap();
+    eprintln!("Input paths {:?}", Path::new(input_file));
 
     if let Err(_) = run(input_file) {
         std::process::exit(1);

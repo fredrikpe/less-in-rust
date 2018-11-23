@@ -4,6 +4,7 @@ use std::io::{self, Error, ErrorKind, Initializer};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
+use utf8_validation;
 use string_util;
 use util;
 
@@ -49,17 +50,16 @@ impl<R: Read + Seek> BiBufReader<R> {
 
     pub fn up_n_lines(&mut self, n: usize) -> Result<()> {
         let buf = self.make_buf_up()?;
-        let size = buf.len();
 
         unsafe {
+            let size = buf.len();
+
             let (screen_width, _) = util::screen_width_height();
 
-            let start = 0;
             let offset = size as i64
-                - start as i64
                 - string_util::nth_last_newline_wrapped(
                     n + 1,
-                    str::from_utf8_unchecked(&buf[start..]),
+                    str::from_utf8_unchecked(&buf[..]),
                     screen_width as usize,
                 ) as i64;
             self.seek(SeekFrom::Current(-(offset as i64)))?;
@@ -69,18 +69,19 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     pub fn down_n_lines(&mut self, n: usize) -> Result<()> {
-        let (buf, _) = self.make_buf_down()?;
+        eprint!("down, ");
+        self.pcur_pos()?;
+        let (buf, size) = self.make_buf_down()?;
 
         let (screen_width, _) = util::screen_width_height();
 
         unsafe {
-            if let Some(newline_offset) = string_util::nth_newline_wrapped(
+            let newline_offset = string_util::nth_newline_wrapped(
                 n,
-                str::from_utf8_unchecked(&buf),
+                str::from_utf8_unchecked(&buf[..size]),
                 screen_width as usize,
-            ) {
-                self.seek(SeekFrom::Current(newline_offset as i64))?;
-            }
+            );
+            self.seek(SeekFrom::Current(newline_offset as i64))?;
         }
 
         Ok(())
@@ -102,10 +103,14 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         let offset = self.seek(SeekFrom::Current(-bytes_read))?;
 
+        //eprintln!("size {}, bytes_read {}, offset {}", size, bytes_read, offset);
+
         Ok((offset, page_buf[..bytes_read as usize].to_vec()))
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
+        let cur_pos = self.seek(SeekFrom::Current(0))?;
+
         let size = std::cmp::min(
             self.search_buf_size(),
             self.seek(SeekFrom::Current(0))? as usize,
@@ -114,13 +119,17 @@ impl<R: Read + Seek> BiBufReader<R> {
         let mut buf = vec![0; size];
         let new_pos = self.seek(SeekFrom::Current(-(size as i64)))?;
 
-        let _bytes_read = self.read(&mut buf[..size])?;
-        //debug_assert!(bytes_read as u64 == size as u64);
+        let bytes_read = self.read(&mut buf[..size])?;
 
-        Ok(buf)
+        self.seek(SeekFrom::Current((size - bytes_read) as i64))?;
+
+        assert_eq!(cur_pos, self.seek(SeekFrom::Current(0))?);
+        Ok(string_util::make_valid(buf))
     }
 
     fn make_buf_down(&mut self) -> Result<(Vec<u8>, usize)> {
+        let cur_pos = self.seek(SeekFrom::Current(0))?;
+
         let size = self.search_buf_size();
         let mut buf = vec![0; size as usize];
 
@@ -135,6 +144,7 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         self.seek(SeekFrom::Current(-(bytes_read as i64)))?;
 
+        assert_eq!(cur_pos, self.seek(SeekFrom::Current(0))?);
         Ok((buf, bytes_read))
     }
 
@@ -158,7 +168,6 @@ impl<R: Read + Seek> BiBufReader<R> {
         let size = self.seek(SeekFrom::End(0))?;
         let offset = std::cmp::min(size, (size * percent / 100) as u64);
 
-        eprintln!("offset {}", offset);
         self.seek(SeekFrom::Start(offset))
     }
 
@@ -231,6 +240,7 @@ impl<R: Seek> Seek for BiBufReader<R> {
             result = self.inner.seek(pos)?;
         }
         self.pos = self.cap; // empty the buffer
+
         Ok(result)
     }
 }
@@ -248,6 +258,7 @@ impl<R: Read> Read for BiBufReader<R> {
             rem.read(buf)?
         };
         self.consume(nread);
+        debug_assert!(utf8_validation::first_valid_pos(buf).unwrap() == 0);
         Ok(nread)
     }
 
