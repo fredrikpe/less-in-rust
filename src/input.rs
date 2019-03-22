@@ -10,7 +10,7 @@ use std::io::stdin;
 pub enum Input {
     Ctrl(char),
     Char(char),
-    Num(char, u32),
+    Num(char),
     Backspace,
     NoOp,
 }
@@ -34,7 +34,7 @@ pub fn parse_input() -> Input {
 
 pub fn parse_char(c: char) -> Input {
     return match c.to_digit(10) {
-        Some(n) => Input::Num(c, n),
+        Some(_) => Input::Num(c),
         None => Input::Char(c),
     };
 }

@@ -1,4 +1,3 @@
-
 use std::mem;
 
 /// Returns the offset of the first valid start of a
@@ -12,11 +11,14 @@ pub fn first_valid_pos(b: &[u8]) -> Option<usize> {
 
     loop {
         match run_utf8_validation(&b[offset..]) {
-            Err(Utf8Error { valid_up_to: v, error_len: e }) => {
+            Err(Utf8Error {
+                valid_up_to: v,
+                error_len: _,
+            }) => {
                 if v > 0 {
                     return Some(offset);
                 }
-            },
+            }
             Ok(_) => return Some(offset),
         }
 
@@ -26,7 +28,6 @@ pub fn first_valid_pos(b: &[u8]) -> Option<usize> {
         }
     }
 }
-
 
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
 pub struct Utf8Error {
@@ -54,7 +55,11 @@ fn run_utf8_validation(v: &[u8]) -> Result<(), Utf8Error> {
 
     let usize_bytes = mem::size_of::<usize>();
     let ascii_block_size = 2 * usize_bytes;
-    let blocks_end = if len >= ascii_block_size { len - ascii_block_size + 1 } else { 0 };
+    let blocks_end = if len >= ascii_block_size {
+        len - ascii_block_size + 1
+    } else {
+        0
+    };
 
     while index < len {
         let old_offset = index;
@@ -63,18 +68,20 @@ fn run_utf8_validation(v: &[u8]) -> Result<(), Utf8Error> {
                 return Err(Utf8Error {
                     valid_up_to: old_offset,
                     error_len: $error_len,
-                })
-            }
+                });
+            };
         }
 
-        macro_rules! next { () => {{
-            index += 1;
-            // we needed data, but there was none: error!
-            if index >= len {
-                err!(None)
-            }
-            v[index]
-        }}}
+        macro_rules! next {
+            () => {{
+                index += 1;
+                // we needed data, but there was none: error!
+                if index >= len {
+                    err!(None)
+                }
+                v[index]
+            }};
+        }
 
         let first = v[index];
         if first >= 128 {
@@ -98,16 +105,18 @@ fn run_utf8_validation(v: &[u8]) -> Result<(), Utf8Error> {
             // UTF8-4      = %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
             //               %xF4 %x80-8F 2( UTF8-tail )
             match w {
-                2 => if next!() & !CONT_MASK != TAG_CONT_U8 {
-                    err!(Some(1))
-                },
+                2 => {
+                    if next!() & !CONT_MASK != TAG_CONT_U8 {
+                        err!(Some(1))
+                    }
+                }
                 3 => {
                     match (first, next!()) {
-                        (0xE0         , 0xA0 ..= 0xBF) |
-                        (0xE1 ..= 0xEC, 0x80 ..= 0xBF) |
-                        (0xED         , 0x80 ..= 0x9F) |
-                        (0xEE ..= 0xEF, 0x80 ..= 0xBF) => {}
-                        _ => err!(Some(1))
+                        (0xE0, 0xA0..=0xBF)
+                        | (0xE1..=0xEC, 0x80..=0xBF)
+                        | (0xED, 0x80..=0x9F)
+                        | (0xEE..=0xEF, 0x80..=0xBF) => {}
+                        _ => err!(Some(1)),
                     }
                     if next!() & !CONT_MASK != TAG_CONT_U8 {
                         err!(Some(2))
@@ -115,10 +124,10 @@ fn run_utf8_validation(v: &[u8]) -> Result<(), Utf8Error> {
                 }
                 4 => {
                     match (first, next!()) {
-                        (0xF0         , 0x90 ..= 0xBF) |
-                        (0xF1 ..= 0xF3, 0x80 ..= 0xBF) |
-                        (0xF4         , 0x80 ..= 0x8F) => {}
-                        _ => err!(Some(1))
+                        (0xF0, 0x90..=0xBF)
+                        | (0xF1..=0xF3, 0x80..=0xBF)
+                        | (0xF4, 0x80..=0x8F) => {}
+                        _ => err!(Some(1)),
                     }
                     if next!() & !CONT_MASK != TAG_CONT_U8 {
                         err!(Some(2))
@@ -127,7 +136,7 @@ fn run_utf8_validation(v: &[u8]) -> Result<(), Utf8Error> {
                         err!(Some(3))
                     }
                 }
-                _ => err!(Some(1))
+                _ => err!(Some(1)),
             }
             index += 1;
         } else {
@@ -167,36 +176,34 @@ fn run_utf8_validation(v: &[u8]) -> Result<(), Utf8Error> {
 
 // https://tools.ietf.org/html/rfc3629
 static UTF8_CHAR_WIDTH: [u8; 256] = [
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 0x1F
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 0x3F
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 0x5F
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 0x7F
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 0x9F
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 0xBF
-0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, // 0xDF
-3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3, // 0xEF
-4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0, // 0xFF
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, // 0x1F
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, // 0x3F
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, // 0x5F
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, // 0x7F
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, // 0x9F
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, // 0xBF
+    0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, // 0xDF
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 0xEF
+    4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0xFF
 ];
 
-/// Given a first byte, determines how many bytes are in this UTF-8 character.
-#[inline]
-pub fn utf8_char_width(b: u8) -> usize {
-    UTF8_CHAR_WIDTH[b as usize] as usize
-}
-
+///// Given a first byte, determines how many bytes are in this UTF-8 character.
+//#[inline]
+//pub fn utf8_char_width(b: u8) -> usize {
+//UTF8_CHAR_WIDTH[b as usize] as usize
+//}
 
 /// Mask of the value bits of a continuation byte.
 const CONT_MASK: u8 = 0b0011_1111;
 /// Value of the tag bits (tag mask is !CONT_MASK) of a continuation byte.
 const TAG_CONT_U8: u8 = 0b1000_0000;
-
 
 #[cfg(test)]
 mod tests {
@@ -214,7 +221,7 @@ mod tests {
         assert_eq!(first_valid_pos(&b[0..0]), Some(0));
         assert_eq!(first_valid_pos(&b[0..1]), None);
     }
- 
+
     #[test]
     fn test_utf8_validation() {
         let s = "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
@@ -224,4 +231,3 @@ mod tests {
         assert_eq!(run_utf8_validation(&b[3..129]), Ok(()));
     }
 }
- 

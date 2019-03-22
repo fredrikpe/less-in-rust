@@ -1,11 +1,10 @@
-
 use std::io::BufRead;
 use std::io::{self, Error, ErrorKind, Initializer};
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::str;
 
-use utf8_validation;
 use string_util;
+use utf8_validation;
 use util;
 
 const DEFAULT_BUF_SIZE: usize = 4096;
@@ -103,8 +102,6 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         let offset = self.seek(SeekFrom::Current(-bytes_read))?;
 
-        //eprintln!("size {}, bytes_read {}, offset {}", size, bytes_read, offset);
-
         Ok((offset, page_buf[..bytes_read as usize].to_vec()))
     }
 
@@ -117,7 +114,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         );
 
         let mut buf = vec![0; size];
-        let new_pos = self.seek(SeekFrom::Current(-(size as i64)))?;
+        let _ = self.seek(SeekFrom::Current(-(size as i64)))?;
 
         let bytes_read = self.read(&mut buf[..size])?;
 

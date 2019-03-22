@@ -1,13 +1,14 @@
-
-use unicode_segmentation::GraphemeCursor;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn grapheme_count(buf: &str) -> usize {
     UnicodeSegmentation::graphemes(buf, true).count()
 }
 
+#[allow(dead_code)]
 pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
-    for (index, (offset, _)) in UnicodeSegmentation::grapheme_indices(buf, true).enumerate() {
+    for (index, (offset, _)) in
+        UnicodeSegmentation::grapheme_indices(buf, true).enumerate()
+    {
         if index == n {
             return Some(offset);
         }
@@ -16,7 +17,11 @@ pub fn nth_grapheme_offset(buf: &str, n: usize) -> Option<usize> {
     None
 }
 
-pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> usize {
+pub fn nth_newline_wrapped(
+    mut n: usize,
+    buf: &str,
+    screen_width: usize,
+) -> usize {
     let mut grapheme_count = 0;
     let mut current_pos = 0;
     for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
@@ -34,6 +39,7 @@ pub fn nth_newline_wrapped(mut n: usize, buf: &str, screen_width: usize) -> usiz
     current_pos
 }
 
+#[allow(dead_code)]
 pub fn last_newline_offset(buf: &str) -> Option<usize> {
     let mut last = None;
     for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
@@ -45,7 +51,11 @@ pub fn last_newline_offset(buf: &str) -> Option<usize> {
     last
 }
 
-pub fn nth_last_newline_wrapped(n: usize, buf: &str, screen_width: usize) -> usize {
+pub fn nth_last_newline_wrapped(
+    n: usize,
+    buf: &str,
+    screen_width: usize,
+) -> usize {
     let mut offsets = Vec::new();
     let mut grapheme_count = 0;
 
@@ -64,6 +74,7 @@ pub fn nth_last_newline_wrapped(n: usize, buf: &str, screen_width: usize) -> usi
     };
 }
 
+#[allow(dead_code)]
 pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
     nth_last_newline_wrapped(2, buf, screen_width)
 }
@@ -148,8 +159,14 @@ mod tests {
         assert_eq!(nth_last_newline_wrapped(2, v, 3), 3);
         assert_eq!(nth_last_newline_wrapped(10, w, 3), 1);
         // When we give an incomplete grapheme
-        assert!(std::panic::catch_unwind(|| { nth_last_newline_wrapped(56, &x[1..], 131); }).is_err());
-        assert!(std::panic::catch_unwind(|| { nth_last_newline_wrapped(56, &x[..x.len() - 1], 131); }).is_err());
+        assert!(std::panic::catch_unwind(|| {
+            nth_last_newline_wrapped(56, &x[1..], 131);
+        })
+        .is_err());
+        assert!(std::panic::catch_unwind(|| {
+            nth_last_newline_wrapped(56, &x[..x.len() - 1], 131);
+        })
+        .is_err());
     }
 
     #[test]

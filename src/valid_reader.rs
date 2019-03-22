@@ -1,8 +1,5 @@
 
-use std::io::{self, Seek, Read, SeekFrom, Error, ErrorKind};
-use std::str;
-
-use unicode_segmentation::GraphemeCursor;
+use std::io::{self, Error, ErrorKind, Read, Seek, SeekFrom};
 
 use utf8_validation;
 
@@ -12,9 +9,7 @@ pub struct ValidReader<R> {
 
 impl<R: Read> ValidReader<R> {
     pub fn new(reader: R) -> ValidReader<R> {
-        ValidReader {
-            inner: reader,
-        }
+        ValidReader { inner: reader }
     }
 }
 
@@ -39,16 +34,17 @@ impl<R: Read + Seek> Seek for ValidReader<R> {
 
         pos += match utf8_validation::first_valid_pos(&buf[..r]) {
             Some(offset) => offset as u64,
-            None => return Err(Error::new(
-                ErrorKind::Other,
-                "No valid position found.",
-            )),
+            None => {
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    "No valid position found.",
+                ))
+            }
         };
 
         self.inner.seek(SeekFrom::Start(pos))
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -63,8 +59,10 @@ mod tests {
     #[test]
     fn test_seek_to_end() {
         let mut reader = ValidReader::new(thai_file());
-        assert_eq!(reader.seek(SeekFrom::End(0)).unwrap(),
-                   reader.seek(SeekFrom::Current(0)).unwrap());
+        assert_eq!(
+            reader.seek(SeekFrom::End(0)).unwrap(),
+            reader.seek(SeekFrom::Current(0)).unwrap()
+        );
     }
 
     #[test]

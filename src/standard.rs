@@ -1,5 +1,4 @@
-
-use std::io::{self};
+use std::io;
 
 use grep::matcher::{Match, Matcher};
 use grep::regex::RegexMatcher;
@@ -18,12 +17,11 @@ impl<'a> StandardSink<'a> {
         let offset = mat.absolute_byte_offset();
 
         let matches = &mut self.matches;
-        self.matcher
-            .find_iter(bytes, |m| {
-                matches.push((offset, m));
-                true
-            })?;
-            //.map_err(io::Error::error_message)?;
+        self.matcher.find_iter(bytes, |m| {
+            matches.push((offset, m));
+            true
+        })?;
+        //.map_err(io::Error::error_message)?;
         // Don't report empty matches appearing at the end of the bytes.
         if !matches.is_empty()
             && matches.last().unwrap().1.is_empty()
@@ -38,7 +36,11 @@ impl<'a> StandardSink<'a> {
 impl<'a> Sink for StandardSink<'a> {
     type Error = io::Error;
 
-    fn matched(&mut self, _searcher: &Searcher, mat: &SinkMatch) -> Result<bool, io::Error> {
+    fn matched(
+        &mut self,
+        _searcher: &Searcher,
+        mat: &SinkMatch,
+    ) -> Result<bool, io::Error> {
         self.match_count += 1;
         self.record_match(mat)?;
 

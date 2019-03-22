@@ -10,22 +10,23 @@ use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 
 use std::io::stdout;
-use std::result::Result;
 use std::path::Path;
+use std::result::Result;
 
 use clap::{App, Arg};
 
+mod args;
 mod commands;
+mod error;
 mod file_buffer;
 mod input;
 mod printer;
 mod searcher;
 mod standard;
 mod string_util;
-mod util;
-mod args;
-mod valid_reader;
 mod utf8_validation;
+mod util;
+mod valid_reader;
 
 fn main() {
     let matches = App::new("My Super Program")
@@ -61,7 +62,7 @@ fn run(input_file: &str) -> Result<(), ()> {
 
     loop {
         let _ = printer.render(
-            &state.page(),
+            &mut state.page(),
             &state.matches,
             state.command_line_text().clone(),
         );
