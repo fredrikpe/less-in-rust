@@ -1,4 +1,3 @@
-
 use termion::event::Event;
 use termion::event::Key;
 //use termion::event::MouseButton;
@@ -71,7 +70,6 @@ pub struct CommandLine {
     mode: Mode,
     buffer: String,
 }
-
 
 impl CommandLine {
     pub fn new() -> CommandLine {

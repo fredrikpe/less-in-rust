@@ -37,7 +37,7 @@ fn main() {
     }
 }
 
-fn run(input_file: app::Input) -> Result<(), ()> {
+fn run(input_file: app::InputSource) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
 
     let mut state = commands::State::new(input_file);

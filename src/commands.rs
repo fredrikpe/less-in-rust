@@ -1,28 +1,28 @@
 use std::fs::File;
-use std::io::{Stdin, stdin};
+use std::io::{stdin, Stdin};
 
 use grep::matcher::Match;
 
+use app::InputSource;
 use file_buffer::BiBufReader;
-use input::{UserInput, Command, CommandLine};
+use input::{Command, CommandLine, UserInput};
 use searcher;
 use util;
 use valid_reader::ValidReader;
-use app::Input;
 
 pub struct State {
     pub reader: BiBufReader<ValidReader<File>>,
     pub quit: bool,
     command_line: CommandLine,
-    input_file: Input,
+    input_file: InputSource,
     pub matches: Vec<(u64, Match)>,
 }
 
 impl State {
-    pub fn new(input_file: Input) -> State {
+    pub fn new(input_file: InputSource) -> State {
         let rdr = match &input_file {
-            Input::File(path) => File::open(path).unwrap(),
-            Input::StdIn => panic!("stdin not supported"),
+            InputSource::File(path) => File::open(path).unwrap(),
+            InputSource::StdIn => panic!("stdin not supported"),
         };
 
         State {

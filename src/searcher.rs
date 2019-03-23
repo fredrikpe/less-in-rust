@@ -1,21 +1,20 @@
+use std::io::{stdin, Read};
 use std::path::Path;
-use std::io::{Read, stdin};
 
 use grep::matcher::Match;
 use grep::regex::RegexMatcher;
 use grep::searcher::Searcher;
 
+use app::InputSource;
 use error::MError;
-use app::Input;
 use standard::StandardSink;
-
 
 /// Search the given subject using the appropriate strategy.
 pub fn search(
     matches: &mut Vec<(u64, Match)>,
-    input_file: &Input,
+    input_file: &InputSource,
     pattern: &str,
-    ) -> Result<(), MError> {
+) -> Result<(), MError> {
     let matcher = match RegexMatcher::new(&pattern[..]) {
         Err(_) => return Err(MError::Error),
         Ok(m) => m,
@@ -28,18 +27,27 @@ pub fn search(
     };
 
     return match input_file {
-        Input::StdIn => {
+        InputSource::StdIn => {
             let stdin = stdin();
             // A `return` here appeases the borrow checker. NLL will fix this.
             return search_reader(&mut sink, stdin.lock());
         }
-        Input::File(path) => search_path(&mut sink, std::path::Path::new(path))
-    }
+        InputSource::File(path) => {
+            search_path(&mut sink, std::path::Path::new(path))
+        }
+    };
 }
 
 // For stdin
-fn search_reader<R: Read>(sink: &mut StandardSink, reader: R) -> Result<(), MError> {
-    return match Searcher::new().search_reader(sink.matcher.clone(), reader, sink) {
+fn search_reader<R: Read>(
+    sink: &mut StandardSink,
+    reader: R,
+) -> Result<(), MError> {
+    return match Searcher::new().search_reader(
+        sink.matcher.clone(),
+        reader,
+        sink,
+    ) {
         Err(_) => Err(MError::Error),
         Ok(_) => Ok(()),
     };
@@ -52,4 +60,3 @@ fn search_path(sink: &mut StandardSink, path: &Path) -> Result<(), MError> {
         Ok(_) => Ok(()),
     };
 }
-
