@@ -161,8 +161,8 @@ fn write_higlight<D: std::fmt::Display, W: Write>(
     out: &mut AlternateScreen<W>,
     text: &D,
 ) {
-    let _ = write!(out, "{}{}", color::Bg(color::White), text);
-    let _ = write!(out, "{}", color::Bg(color::Reset));
+    let _ = write!(out, "{}{}{}", color::Fg(color::Black), color::Bg(color::White), text);
+    let _ = write!(out, "{}{}", color::Fg(color::Reset), color::Bg(color::Reset));
 }
 
 fn write<D: std::fmt::Display, W: Write>(
