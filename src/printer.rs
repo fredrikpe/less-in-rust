@@ -161,15 +161,15 @@ fn write_higlight<D: std::fmt::Display, W: Write>(
     out: &mut AlternateScreen<W>,
     text: &D,
 ) {
-    write!(out, "{}{}", color::Bg(color::White), text);
-    write!(out, "{}", color::Bg(color::Reset));
+    let _ = write!(out, "{}{}", color::Bg(color::White), text);
+    let _ = write!(out, "{}", color::Bg(color::Reset));
 }
 
 fn write<D: std::fmt::Display, W: Write>(
     out: &mut AlternateScreen<W>,
     text: &D,
 ) {
-    write!(out, "{}", text);
+    let _ = write!(out, "{}", text);
 }
 
 fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {

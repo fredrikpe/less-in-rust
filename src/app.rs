@@ -11,22 +11,28 @@ impl App {
         }
     }
 
-    fn files(&self) -> Vec<InputFile> {
+    pub fn files(&self) -> Vec<Input> {
         self.matches
             .values_of("FILE")
             .map(|values| {
                 values
                     .map(|filename| {
                         if filename == "-" {
-                            InputFile::StdIn
+                            Input::StdIn
                         } else {
-                            InputFile::Ordinary(filename)
+                            Input::File(filename.to_string())
                         }
                     })
                 .collect()
             })
-        .unwrap_or_else(|| vec![InputFile::StdIn])
+        .unwrap_or_else(|| vec![Input::StdIn])
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Input {
+    StdIn,
+    File(String),
 }
 
 fn clap_app() -> ClapApp<'static, 'static> {

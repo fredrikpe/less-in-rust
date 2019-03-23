@@ -1,61 +1,40 @@
 use std::fs::File;
+use std::io::{Stdin, stdin};
 
 use grep::matcher::Match;
 
 use file_buffer::BiBufReader;
-use input::Input;
+use input::{UserInput, Command, CommandLine};
 use searcher;
 use util;
 use valid_reader::ValidReader;
-
-#[derive(Debug, PartialEq)]
-pub enum Command {
-    UpOneLine,
-    UpHalfScreen,
-    UpOneScreen,
-
-    DownOneLine,
-    DownHalfScreen,
-    DownOneScreen,
-
-    JumpBeginning,
-    JumpEnd,
-    JumpPercent(u64),
-    JumpNextMatch,
-    JumpPrevMatch,
-
-    Search(String),
-
-    Quit,
-    NoOp,
-}
+use app::Input;
 
 pub struct State {
     pub reader: BiBufReader<ValidReader<File>>,
     pub quit: bool,
     command_line: CommandLine,
-    input_file: String,
+    input_file: Input,
     pub matches: Vec<(u64, Match)>,
 }
 
 impl State {
-    pub fn new(input_file: &str) -> State {
-        let file = match File::open(input_file) {
-            Ok(f) => f,
-            // TODO: Fails on file not found
-            Err(_) => panic!("panic in state constructor"),
+    pub fn new(input_file: Input) -> State {
+        let rdr = match &input_file {
+            Input::File(path) => File::open(path).unwrap(),
+            Input::StdIn => panic!("stdin not supported"),
         };
 
         State {
-            reader: BiBufReader::new(ValidReader::new(file)),
+            reader: BiBufReader::new(ValidReader::new(rdr)),
             quit: false,
             command_line: CommandLine::new(),
-            input_file: input_file.to_string(),
+            input_file: input_file,
             matches: Vec::new(),
         }
     }
 
-    pub fn update(&mut self, input: &Input) -> Result<(), std::io::Error> {
+    pub fn update(&mut self, input: &UserInput) -> Result<(), std::io::Error> {
         let command = self.command_line.parse_input(input);
 
         match command {
@@ -133,128 +112,5 @@ impl State {
 
     pub fn command_line_text(&self) -> String {
         return self.command_line.text();
-    }
-}
-
-enum Mode {
-    Normal,
-    Search,
-}
-
-struct CommandLine {
-    mode: Mode,
-    buffer: String,
-}
-
-impl CommandLine {
-    pub fn new() -> CommandLine {
-        CommandLine {
-            mode: Mode::Normal,
-            buffer: String::new(),
-        }
-    }
-
-    pub fn parse_input(&mut self, input: &Input) -> Command {
-        return match self.mode {
-            Mode::Normal => self.normal_parse(input),
-            Mode::Search => self.search_parse(input),
-        };
-    }
-
-    fn normal_parse(&mut self, input: &Input) -> Command {
-        let command = match input {
-            Input::Char('q') => Command::Quit,
-
-            Input::Ctrl('d') => Command::DownHalfScreen,
-            Input::Ctrl('u') => Command::UpHalfScreen,
-
-            Input::Ctrl('f') => Command::DownOneScreen,
-            Input::Ctrl('b') => Command::UpOneScreen,
-
-            Input::Char('j') => Command::DownOneLine,
-            Input::Char('k') => Command::UpOneLine,
-
-            Input::Char('g') => Command::JumpBeginning,
-            Input::Char('G') => Command::JumpEnd,
-            Input::Char('p') => Command::JumpPercent(self.number()),
-
-            Input::Char('n') => Command::JumpNextMatch,
-            Input::Char('N') => Command::JumpPrevMatch,
-
-            Input::Char('/') => {
-                self.mode = Mode::Search;
-                Command::NoOp
-            }
-
-            Input::Num(c) => {
-                self.buffer.push(*c);
-                Command::NoOp
-            }
-
-            Input::Ctrl(_) => Command::NoOp,
-            _ => Command::NoOp,
-        };
-        if command != Command::NoOp {
-            self.buffer.clear();
-        }
-
-        command
-    }
-
-    fn search_parse(&mut self, input: &Input) -> Command {
-        let command = match input {
-            Input::Ctrl('c') => {
-                self.mode = Mode::Normal;
-                Command::NoOp
-            }
-
-            Input::Char('\n') => {
-                eprintln!("enter pressed");
-                let pattern = self.buffer.clone();
-                self.buffer.clear();
-                self.mode = Mode::Normal;
-                Command::Search(pattern)
-            }
-
-            Input::Backspace => {
-                eprintln!("backspace");
-                self.buffer.pop();
-                Command::NoOp
-            }
-
-            Input::Char(c) => {
-                self.buffer.push(*c);
-                Command::NoOp
-            }
-
-            Input::Num(c) => {
-                self.buffer.push(*c);
-                Command::NoOp
-            }
-
-            _ => Command::NoOp,
-        };
-        if command != Command::NoOp {}
-
-        command
-    }
-
-    pub fn text(&self) -> String {
-        return match self.mode {
-            Mode::Normal => match self.number() {
-                0 => format!(":"),
-                n => format!(":{}", n),
-            },
-            Mode::Search => format!("/{}", self.buffer),
-        };
-    }
-
-    fn number(&self) -> u64 {
-        let mut tot = 0;
-        for (i, c) in self.buffer.chars().enumerate() {
-            tot += c.to_digit(10).unwrap() as u64
-                * 10u64.pow((self.buffer.len() - i - 1) as u32);
-        }
-        tot
     }
 }
