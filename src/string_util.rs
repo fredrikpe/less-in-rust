@@ -80,7 +80,7 @@ pub fn snd_last_newline_wrapped(buf: &str, screen_width: usize) -> usize {
 }
 
 pub fn is_newline(grapheme: &str) -> bool {
-    grapheme == "\n"
+    grapheme == "\n" || grapheme == "\r\n"
 }
 
 pub fn grapheme_size(grapheme: &str) -> usize {
@@ -168,6 +168,27 @@ mod tests {
             nth_last_newline_wrapped(56, &x[..x.len() - 1], 131);
         })
         .is_err());
+    }
+
+    fn bible_string() -> String {
+        use std::fs::File;
+        use std::io::prelude::*;
+
+        let mut file = File::open("tests/resources/bible_short.txt").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).expect("Unable to read the file");
+        contents
+    }
+
+    #[test]
+    fn test_nth_last_newline_wrapped_file() {
+        let bible = bible_string();
+
+        for c in bible.chars() { 
+            eprint!("{} ", c);
+        }
+
+        assert_eq!(nth_last_newline_wrapped(1, &bible[..], 3), 207);
     }
 
     #[test]

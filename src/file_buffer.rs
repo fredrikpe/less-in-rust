@@ -80,6 +80,7 @@ impl<R: Read + Seek> BiBufReader<R> {
                 str::from_utf8_unchecked(&buf[..size]),
                 screen_width as usize,
             );
+            dbg!(newline_offset);
             self.seek(SeekFrom::Current(newline_offset as i64))?;
         }
 

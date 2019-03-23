@@ -173,8 +173,6 @@ fn write<D: std::fmt::Display, W: Write>(
 }
 
 fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
-    dbg!(matches.len());
-
     let mut res = Vec::new();
     for (offset, mat) in matches {
         if (*offset + mat.start() as u64) < start {
@@ -185,7 +183,11 @@ fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
         for i in s..e {
             res.push(i);
         }
+        // Are X mathces enough?
+        if res.len() > 3000 {
+            break;
+        }
     }
-
     res
 }
+
