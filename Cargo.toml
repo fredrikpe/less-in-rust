@@ -5,6 +5,7 @@ authors = ["Fredrik Ingebrigtsen <fredrikpei@gmail.com>"]
 
 [dependencies]
 grep = "0.2.3"
+libc = "0.2.40"
 clap = "2.32.0"
 termion = "1.5.1"
 unicode-segmentation = "1.2.0"

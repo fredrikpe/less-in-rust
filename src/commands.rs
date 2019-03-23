@@ -80,6 +80,7 @@ impl State {
             Command::JumpNextMatch => self.try_jump_next_match()?,
             Command::JumpPrevMatch => self.try_jump_prev_match()?,
             Command::Search(pattern) => {
+                self.matches.clear();
                 match searcher::search(
                     &mut self.matches,
                     &self.input_file,
