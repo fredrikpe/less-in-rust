@@ -42,7 +42,7 @@ impl<W: Write> Printer<W> {
         page: &(u64, Vec<u8>),
         matches: &Vec<(u64, Match)>,
         command_line_text: String,
-        ) -> Result<(), ()> {
+    ) -> Result<(), ()> {
         self.clear_screen();
 
         self.print_page(&page.1, search_offsets(page.0, matches))?;
@@ -56,7 +56,7 @@ impl<W: Write> Printer<W> {
         &mut self,
         page: &Vec<u8>,
         search_offsets: Vec<u64>,
-        ) -> Result<(), ()> {
+    ) -> Result<(), ()> {
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
 
@@ -70,29 +70,29 @@ impl<W: Write> Printer<W> {
             let mut grapheme_count = 0;
             for (index, grapheme) in
                 UnicodeSegmentation::grapheme_indices(&page_string[..], true)
-                {
-                    if screen_line_number >= screen_height - 1 {
-                        break;
-                    }
-
-                    if grapheme_count >= screen_width as usize {
-                        grapheme_count = 0;
-                        screen_line_number += 1;
-                        self.push_newline();
-                    }
-
-                    if string_util::is_newline(grapheme) {
-                        grapheme_count = 0;
-                        screen_line_number += 1;
-                        self.push_newline();
-                    } else {
-                        grapheme_count += 1;
-                        self.push_str(
-                            &grapheme, 
-                            search_offsets.contains(&(index as u64))
-                        );
-                    }
+            {
+                if screen_line_number >= screen_height - 1 {
+                    break;
                 }
+
+                if grapheme_count >= screen_width as usize {
+                    grapheme_count = 0;
+                    screen_line_number += 1;
+                    self.push_newline();
+                }
+
+                if string_util::is_newline(grapheme) {
+                    grapheme_count = 0;
+                    screen_line_number += 1;
+                    self.push_newline();
+                } else {
+                    grapheme_count += 1;
+                    self.push_str(
+                        &grapheme,
+                        search_offsets.contains(&(index as u64)),
+                    );
+                }
+            }
 
             for _ in screen_line_number..(screen_height - 1) {
                 self.push_tilde_newline();
@@ -109,10 +109,14 @@ impl<W: Write> Printer<W> {
         let (_screen_width, screen_height) = util::screen_width_height();
         write(&mut self.out, &"\n\r");
         write(&mut self.out, &command_line_text);
-        write(&mut self.out, &termion::cursor::Goto(
-                (string_util::grapheme_count(&command_line_text[..]) + 1) as u16,
+        write(
+            &mut self.out,
+            &termion::cursor::Goto(
+                (string_util::grapheme_count(&command_line_text[..]) + 1)
+                    as u16,
                 screen_height + 1,
-                ));
+            ),
+        );
     }
 
     fn clear_screen(&mut self) {
@@ -147,20 +151,26 @@ impl<W: Write> Printer<W> {
         if self.output_buffer[last_index].color == colored {
             self.output_buffer[last_index].string.push_str(grapheme);
         } else {
-            self.output_buffer.push(ColoredString::new(grapheme, colored));
+            self.output_buffer
+                .push(ColoredString::new(grapheme, colored));
         }
     }
 }
 
-fn write_higlight<D: std::fmt::Display, W: Write>(out: &mut AlternateScreen<W>, text: &D) {
+fn write_higlight<D: std::fmt::Display, W: Write>(
+    out: &mut AlternateScreen<W>,
+    text: &D,
+) {
     write!(out, "{}{}", color::Bg(color::White), text);
     write!(out, "{}", color::Bg(color::Reset));
 }
 
-fn write<D: std::fmt::Display, W: Write>(out: &mut AlternateScreen<W>, text: &D) {
+fn write<D: std::fmt::Display, W: Write>(
+    out: &mut AlternateScreen<W>,
+    text: &D,
+) {
     write!(out, "{}", text);
 }
-
 
 fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
     dbg!(matches.len());

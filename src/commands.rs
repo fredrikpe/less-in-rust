@@ -1,4 +1,3 @@
-
 use std::fs::File;
 
 use grep::matcher::Match;
@@ -77,18 +76,11 @@ impl State {
             Command::JumpBeginning => self.reader.jump_percentage(0)?,
             Command::JumpEnd => self.reader.jump_end()?,
             Command::JumpPercent(p) => self.reader.jump_percentage(p)?,
-            Command::JumpNextMatch => self.try_jump_next_match()?,
-            Command::JumpPrevMatch => self.try_jump_prev_match()?,
+            Command::JumpNextMatch => self.jump_next_match(),
+            Command::JumpPrevMatch => self.jump_prev_match(),
             Command::Search(pattern) => {
-                self.matches.clear();
-                match searcher::search(
-                    &mut self.matches,
-                    &self.input_file,
-                    &pattern,
-                ) {
-                    Err(_) => (),
-                    Ok(_) => (),
-                };
+                self.find_matches(&pattern);
+                self.jump_next_match();
             }
             Command::Quit => {
                 self.quit = true;
@@ -99,29 +91,34 @@ impl State {
         Ok(())
     }
 
-    fn try_jump_next_match(&mut self) -> Result<(), std::io::Error> {
-        let cur_offset = self.reader.current_offset()?;
-        return match self
-            .matches
-            .iter()
-            .find(|(offset, _)| *offset > cur_offset)
-        {
-            Some((offset, _)) => self.reader.jump_offset(*offset),
-            None => Ok(()),
+    fn find_matches(&mut self, pattern: &str) {
+        self.matches.clear();
+        match searcher::search(&mut self.matches, &self.input_file, pattern) {
+            Err(_) => (),
+            Ok(_) => (),
         };
     }
 
-    fn try_jump_prev_match(&mut self) -> Result<(), std::io::Error> {
-        let cur_offset = self.reader.current_offset()?;
-        return match self
+    fn jump_next_match(&mut self) {
+        let cur_offset = self.reader.current_offset().unwrap();
+
+        match self.matches.iter().find(|(offset, _)| *offset > cur_offset) {
+            Some((offset, _)) => self.reader.jump_offset(*offset).unwrap(),
+            None => (),
+        }
+    }
+
+    fn jump_prev_match(&mut self) {
+        let cur_offset = self.reader.current_offset().unwrap();
+        match self
             .matches
             .iter()
             .rev()
             .find(|(offset, _)| *offset < cur_offset)
         {
-            Some((offset, _)) => self.reader.jump_offset(*offset),
-            None => Ok(()),
-        };
+            Some((offset, _)) => self.reader.jump_offset(*offset).unwrap(),
+            None => (),
+        }
     }
 
     pub fn page(&mut self) -> (u64, Vec<u8>) {

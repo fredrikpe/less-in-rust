@@ -2,18 +2,18 @@
 #![feature(read_initializer)]
 
 extern crate clap;
-extern crate libc;
 extern crate grep;
+extern crate libc;
 extern crate termion;
 extern crate unicode_segmentation;
 
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 
-use std::io::{stdout, stdin};
+use std::fs::File;
+use std::io::{stdin, stdout};
 use std::path::Path;
 use std::result::Result;
-use std::fs::File;
 
 use clap::{App, Arg};
 
@@ -77,7 +77,6 @@ fn main() {
 
 fn run(input_file: &str) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
-    
 
     let mut state = commands::State::new(input_file);
 

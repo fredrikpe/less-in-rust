@@ -1,4 +1,3 @@
-
 use std::path::Path;
 
 use grep::matcher::Match;
@@ -11,7 +10,7 @@ use standard::StandardSink;
 pub fn search(
     matches: &mut Vec<(u64, Match)>,
     input_file: &String,
-    pattern: &String,
+    pattern: &str,
 ) -> Result<(), MError> {
     let matcher = match RegexMatcher::new(&pattern[..]) {
         Err(_) => return Err(MError::Error),

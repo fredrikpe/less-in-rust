@@ -152,7 +152,8 @@ mod tests {
         let u = "\naa\n";
         let v = "aaaaaa";
         let w = "\n\n\n\n\n\n\n\n\n\n";
-        let x = "ฤๅหาใครค้ำชูกู้บรรลังก์ ฯ";
+        let x =
+            "ฤๅหาใครค้ำชูกู้บรรลังก์ ฯ";
         assert_eq!(nth_last_newline_wrapped(2, s, 3), 0);
         assert_eq!(nth_last_newline_wrapped(2, t, 3), 0);
         assert_eq!(nth_last_newline_wrapped(2, u, 3), 1);

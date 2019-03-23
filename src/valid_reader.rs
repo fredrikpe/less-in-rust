@@ -1,4 +1,3 @@
-
 use std::io::{self, Error, ErrorKind, Read, Seek, SeekFrom};
 
 use utf8_validation;
