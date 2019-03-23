@@ -1,3 +1,4 @@
+
 use termion::event::Event;
 use termion::event::Key;
 //use termion::event::MouseButton;
@@ -71,6 +72,7 @@ pub struct CommandLine {
     buffer: String,
 }
 
+
 impl CommandLine {
     pub fn new() -> CommandLine {
         CommandLine {
@@ -87,36 +89,38 @@ impl CommandLine {
     }
 
     fn normal_parse(&mut self, input: &UserInput) -> Command {
+        use input::UserInput::*;
+
         let command = match input {
-            UserInput::Char('q') => Command::Quit,
+            Char('q') => Command::Quit,
 
-            UserInput::Ctrl('d') => Command::DownHalfScreen,
-            UserInput::Ctrl('u') => Command::UpHalfScreen,
+            Ctrl('d') | Char('d') => Command::DownHalfScreen,
+            Ctrl('u') | Char('u') => Command::UpHalfScreen,
 
-            UserInput::Ctrl('f') => Command::DownOneScreen,
-            UserInput::Ctrl('b') => Command::UpOneScreen,
+            Ctrl('f') | Char('f') => Command::DownOneScreen,
+            Ctrl('b') | Char('b') => Command::UpOneScreen,
 
-            UserInput::Char('j') => Command::DownOneLine,
-            UserInput::Char('k') => Command::UpOneLine,
+            Char('j') => Command::DownOneLine,
+            Char('k') => Command::UpOneLine,
 
-            UserInput::Char('g') => Command::JumpBeginning,
-            UserInput::Char('G') => Command::JumpEnd,
-            UserInput::Char('p') => Command::JumpPercent(self.number()),
+            Char('g') => Command::JumpBeginning,
+            Char('G') => Command::JumpEnd,
+            Char('p') => Command::JumpPercent(self.number()),
 
-            UserInput::Char('n') => Command::JumpNextMatch,
-            UserInput::Char('N') => Command::JumpPrevMatch,
+            Char('n') => Command::JumpNextMatch,
+            Char('N') => Command::JumpPrevMatch,
 
-            UserInput::Char('/') => {
+            Char('/') => {
                 self.mode = Mode::Search;
                 Command::NoOp
             }
 
-            UserInput::Num(c) => {
+            Num(c) => {
                 self.buffer.push(*c);
                 Command::NoOp
             }
 
-            UserInput::Ctrl(_) => Command::NoOp,
+            Ctrl(_) => Command::NoOp,
             _ => Command::NoOp,
         };
         if command != Command::NoOp {
