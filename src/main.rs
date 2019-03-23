@@ -15,9 +15,7 @@ use std::io::{stdin, stdout};
 use std::path::Path;
 use std::result::Result;
 
-use clap::{App, Arg};
-
-mod args;
+mod app;
 mod commands;
 mod error;
 mod file_buffer;
@@ -31,21 +29,11 @@ mod util;
 mod valid_reader;
 
 fn main() {
-    let matches = App::new("My Super Program")
-        .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
-        .about("Does awesome things")
-        .arg(
-            Arg::with_name("input_files")
-                //.short("if")
-                //.long("input_file")
-                .value_name("FILE")
-                .help("Sets a custom config file")
-                .takes_value(true)
-                .required(true)
-                .multiple(true),
-        )
-        .get_matches();
+    let app = app::App::new();
+    dbg!(app.matches);
+    return;
+    
+    /*
 
     // Swap stdin and TTY
     if !termion::is_tty(&stdin()) {
@@ -73,6 +61,7 @@ fn main() {
     if let Err(_) = run(input_file) {
         std::process::exit(1);
     }
+    */
 }
 
 fn run(input_file: &str) -> Result<(), ()> {

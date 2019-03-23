@@ -190,4 +190,3 @@ fn search_offsets(start: u64, matches: &Vec<(u64, Match)>) -> Vec<u64> {
     }
     res
 }
-

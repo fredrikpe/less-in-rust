@@ -7,6 +7,24 @@ use grep::searcher::Searcher;
 use error::MError;
 use standard::StandardSink;
 
+/*
+/// Search the given subject using the appropriate strategy.
+fn search(&mut self, subject: &Subject) -> io::Result<SearchResult> {
+    let path = subject.path();
+    if subject.is_stdin() {
+        let stdin = io::stdin();
+        // A `return` here appeases the borrow checker. NLL will fix this.
+        return self.search_reader(path, stdin.lock());
+    } else if self.should_preprocess(path) {
+        self.search_preprocessor(path)
+    } else if self.should_decompress(path) {
+        self.search_decompress(path)
+    } else {
+        self.search_path(path)
+    }
+}
+*/
+
 pub fn search(
     matches: &mut Vec<(u64, Match)>,
     input_file: &String,

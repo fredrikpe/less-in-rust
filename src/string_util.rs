@@ -176,7 +176,8 @@ mod tests {
 
         let mut file = File::open("tests/resources/bible_short.txt").unwrap();
         let mut contents = String::new();
-        file.read_to_string(&mut contents).expect("Unable to read the file");
+        file.read_to_string(&mut contents)
+            .expect("Unable to read the file");
         contents
     }
 
@@ -184,7 +185,7 @@ mod tests {
     fn test_nth_last_newline_wrapped_file() {
         let bible = bible_string();
 
-        for c in bible.chars() { 
+        for c in bible.chars() {
             eprint!("{} ", c);
         }
 

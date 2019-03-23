@@ -1,3 +1,4 @@
 /target
 **/*.rs.bk
 err.out
+256bible.txt
