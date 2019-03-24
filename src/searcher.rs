@@ -7,7 +7,7 @@ use grep::regex::RegexMatcher;
 use grep::searcher::Searcher;
 
 use error::MError;
-use file_buffer::InputReader;
+use reader::InputReader;
 use standard::StandardSink;
 
 // For stdin

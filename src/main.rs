@@ -17,7 +17,7 @@ use std::result::Result;
 mod app;
 mod commands;
 mod error;
-mod file_buffer;
+mod reader;
 mod input;
 mod printer;
 mod searcher;
@@ -37,7 +37,7 @@ fn main() {
     }
 }
 
-fn run(input_file: file_buffer::InputReader, file: File) -> Result<(), ()> {
+fn run(input_file: reader::InputReader, file: File) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
 
     let mut state = commands::State::new(input_file, file);

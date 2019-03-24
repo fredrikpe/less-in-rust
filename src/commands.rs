@@ -3,7 +3,7 @@ use std::io::{stdin, Stdin};
 
 use grep::matcher::Match;
 
-use file_buffer::{BiBufReader, InputReader, Search, ValidReader};
+use reader::{BiBufReader, InputReader, Search, ValidReader};
 use input::{Command, CommandLine, UserInput};
 use searcher;
 use util;

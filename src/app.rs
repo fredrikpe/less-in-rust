@@ -2,7 +2,7 @@ use clap::{App as ClapApp, Arg, ArgMatches};
 use std::fs::File;
 use std::io::stdin;
 
-use file_buffer::{InputReader, StdinCursor};
+use reader::{InputReader, StdinCursor};
 
 pub struct App {
     pub matches: ArgMatches<'static>,
