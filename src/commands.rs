@@ -3,33 +3,26 @@ use std::io::{stdin, Stdin};
 
 use grep::matcher::Match;
 
-use app::InputSource;
-use file_buffer::{BiBufReader, StdinCursor};
+use file_buffer::{BiBufReader, InputReader, Search, ValidReader};
 use input::{Command, CommandLine, UserInput};
 use searcher;
 use util;
-use valid_reader::ValidReader;
 
 pub struct State {
-    pub reader: BiBufReader<ValidReader<StdinCursor>>,
+    pub reader: BiBufReader<ValidReader<InputReader>>,
     pub quit: bool,
     command_line: CommandLine,
-    input_file: InputSource,
+    file: File,
     pub matches: Vec<(u64, Match)>,
 }
 
 impl State {
-    pub fn new(input_file: InputSource) -> State {
-        let rdr = match &input_file {
-            InputSource::File(file) => panic!(), // File::open(path).unwrap(),
-            InputSource::Stdin(file) => StdinCursor::new(file), //panic!("stdin not supported"),
-        };
-
+    pub fn new(input_reader: InputReader, file: File) -> State {
         State {
-            reader: BiBufReader::new(ValidReader::new(rdr)),
+            reader: BiBufReader::new(ValidReader::new(input_reader)),
             quit: false,
             command_line: CommandLine::new(),
-            input_file: input_file,
+            file: file,
             matches: Vec::new(),
         }
     }
@@ -59,7 +52,9 @@ impl State {
             Command::JumpPrevMatch => self.jump_prev_match(),
             Command::Search(pattern) => {
                 self.find_matches(&pattern);
+                dbg!(self.matches.len());
                 self.jump_next_match();
+                self.jump_prev_match();
             }
             Command::Quit => {
                 self.quit = true;
@@ -72,10 +67,7 @@ impl State {
 
     fn find_matches(&mut self, pattern: &str) {
         self.matches.clear();
-        match searcher::search(&mut self.matches, &self.input_file, pattern) {
-            Err(_) => (),
-            Ok(_) => (),
-        };
+        self.reader.search(&mut self.matches, pattern);
     }
 
     fn jump_next_match(&mut self) {

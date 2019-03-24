@@ -30,18 +30,17 @@ mod valid_reader;
 fn main() {
     let app = app::App::new();
 
-    let input_file = app.input_source();
-    dbg!(&input_file);
+    let (input_reader, file) = app.input_source();
 
-    if let Err(_) = run(input_file) {
+    if let Err(_) = run(input_reader, file) {
         std::process::exit(1);
     }
 }
 
-fn run(input_file: app::InputSource) -> Result<(), ()> {
+fn run(input_file: file_buffer::InputReader, file: File) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
 
-    let mut state = commands::State::new(input_file);
+    let mut state = commands::State::new(input_file, file);
 
     loop {
         let _ = printer.render(

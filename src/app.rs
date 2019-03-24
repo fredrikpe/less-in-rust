@@ -2,6 +2,8 @@ use clap::{App as ClapApp, Arg, ArgMatches};
 use std::fs::File;
 use std::io::stdin;
 
+use file_buffer::{InputReader, StdinCursor};
+
 pub struct App {
     pub matches: ArgMatches<'static>,
 }
@@ -13,7 +15,7 @@ impl App {
         }
     }
 
-    pub fn input_source(&self) -> InputSource {
+    pub fn input_source(&self) -> (InputReader, File) {
         let stdin = stdin();
         let input_file = self.matches.value_of("FILE");
 
@@ -24,17 +26,19 @@ impl App {
                 use std::os::unix::io::*;
                 let tty = File::open("/dev/tty").unwrap();
                 let stdin_fd = libc::dup(0);
-                let ret = File::from_raw_fd(stdin_fd);
+                let file = File::from_raw_fd(stdin_fd);
+                let file_copy = File::from_raw_fd(stdin_fd);
                 libc::dup2(tty.as_raw_fd(), 0);
                 ::std::mem::forget(tty);
 
-                InputSource::Stdin(ret)
+                (InputReader::Stdin(StdinCursor::new(file)), file_copy)
             }
         } else {
             match input_file {
-                Some(filename) => {
-                    InputSource::File(File::open(filename).unwrap())
-                }
+                Some(filename) => (
+                    InputReader::File(File::open(filename).unwrap()),
+                    File::open(filename).unwrap(),
+                ),
                 // Must have a filename as input.
                 None => {
                     eprintln!("Expected 'rager <input>' or input over stdin.");
@@ -44,12 +48,6 @@ impl App {
         };
         input
     }
-}
-
-#[derive(Debug)]
-pub enum InputSource {
-    Stdin(File),
-    File(File),
 }
 
 fn clap_app() -> ClapApp<'static, 'static> {
