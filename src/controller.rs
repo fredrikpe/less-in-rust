@@ -8,7 +8,7 @@ use input::{Command, CommandLine, UserInput};
 use searcher;
 use util;
 
-pub struct State {
+pub struct Controller {
     pub reader: BiBufReader<ValidReader<InputReader>>,
     pub quit: bool,
     command_line: CommandLine,
@@ -16,9 +16,9 @@ pub struct State {
     pub matches: Vec<(u64, Match)>,
 }
 
-impl State {
-    pub fn new(input_reader: InputReader, file: File) -> State {
-        State {
+impl Controller {
+    pub fn new(input_reader: InputReader, file: File) -> Controller {
+        Controller {
             reader: BiBufReader::new(ValidReader::new(input_reader)),
             quit: false,
             command_line: CommandLine::new(),

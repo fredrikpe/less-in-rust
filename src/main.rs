@@ -15,7 +15,7 @@ use std::path::Path;
 use std::result::Result;
 
 mod app;
-mod commands;
+mod controller;
 mod error;
 mod reader;
 mod input;
@@ -25,7 +25,6 @@ mod standard;
 mod string_util;
 mod utf8_validation;
 mod util;
-mod valid_reader;
 
 fn main() {
     let app = app::App::new();
@@ -40,24 +39,24 @@ fn main() {
 fn run(input_file: reader::InputReader, file: File) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
 
-    let mut state = commands::State::new(input_file, file);
+    let mut controller = controller::Controller::new(input_file, file);
 
     loop {
         let _ = printer.render(
-            &mut state.page(),
-            &state.matches,
-            state.command_line_text().clone(),
+            &mut controller.page(),
+            &controller.matches,
+            controller.command_line_text().clone(),
         );
 
         // Blocks, waiting for input.
         // Screen is not redrawn until input is registered.
         let input = input::get_input();
 
-        if let Err(e) = state.update(&input) {
-            eprintln!("Error in state.update: {}", e);
+        if let Err(e) = controller.update(&input) {
+            eprintln!("Error in controller.update: {}", e);
         }
 
-        if state.quit {
+        if controller.quit {
             break;
         }
     }
