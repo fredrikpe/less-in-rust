@@ -1,3 +1,4 @@
+use std::fs::File;
 use std::io::{stdin, Read};
 use std::path::Path;
 
@@ -27,14 +28,13 @@ pub fn search(
     };
 
     return match input_file {
-        InputSource::StdIn => {
+        InputSource::Stdin(file) => {
             let stdin = stdin();
             // A `return` here appeases the borrow checker. NLL will fix this.
-            return search_reader(&mut sink, stdin.lock());
+            //return search_reader(&mut sink, stdin.lock());
+            return search_file(&mut sink, file);
         }
-        InputSource::File(path) => {
-            search_path(&mut sink, std::path::Path::new(path))
-        }
+        InputSource::File(file) => search_file(&mut sink, file),
     };
 }
 
@@ -53,7 +53,13 @@ fn search_reader<R: Read>(
     };
 }
 
-// For files. Possibly faster.
+fn search_file(sink: &mut StandardSink, file: &File) -> Result<(), MError> {
+    return match Searcher::new().search_file(sink.matcher.clone(), file, sink) {
+        Err(_) => Err(MError::Error),
+        Ok(_) => Ok(()),
+    };
+}
+
 fn search_path(sink: &mut StandardSink, path: &Path) -> Result<(), MError> {
     return match Searcher::new().search_path(sink.matcher.clone(), path, sink) {
         Err(_) => Err(MError::Error),

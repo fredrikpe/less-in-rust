@@ -9,6 +9,7 @@ extern crate unicode_segmentation;
 
 use termion::raw::IntoRawMode;
 
+use std::fs::File;
 use std::io::{stdin, stdout};
 use std::path::Path;
 use std::result::Result;
@@ -29,7 +30,7 @@ mod valid_reader;
 fn main() {
     let app = app::App::new();
 
-    let input_file = app.files()[0].clone();
+    let input_file = app.input_source();
     dbg!(&input_file);
 
     if let Err(_) = run(input_file) {

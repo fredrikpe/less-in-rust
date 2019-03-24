@@ -4,14 +4,14 @@ use std::io::{stdin, Stdin};
 use grep::matcher::Match;
 
 use app::InputSource;
-use file_buffer::BiBufReader;
+use file_buffer::{BiBufReader, StdinCursor};
 use input::{Command, CommandLine, UserInput};
 use searcher;
 use util;
 use valid_reader::ValidReader;
 
 pub struct State {
-    pub reader: BiBufReader<ValidReader<File>>,
+    pub reader: BiBufReader<ValidReader<StdinCursor>>,
     pub quit: bool,
     command_line: CommandLine,
     input_file: InputSource,
@@ -21,8 +21,8 @@ pub struct State {
 impl State {
     pub fn new(input_file: InputSource) -> State {
         let rdr = match &input_file {
-            InputSource::File(path) => File::open(path).unwrap(),
-            InputSource::StdIn => panic!("stdin not supported"),
+            InputSource::File(file) => panic!(), // File::open(path).unwrap(),
+            InputSource::Stdin(file) => StdinCursor::new(file), //panic!("stdin not supported"),
         };
 
         State {

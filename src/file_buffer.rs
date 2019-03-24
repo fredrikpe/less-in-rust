@@ -1,6 +1,8 @@
-use std::io::BufRead;
-use std::io::{self, Error, ErrorKind, Initializer};
-use std::io::{Read, Result, Seek, SeekFrom};
+use std::fs::File;
+use std::io::{
+    self, BufRead, Cursor, Error, ErrorKind, Initializer, Read, Result, Seek,
+    SeekFrom, Stdin,
+};
 use std::str;
 
 use string_util;
@@ -21,8 +23,6 @@ impl<R: Read + Seek> BiBufReader<R> {
         unsafe {
             let mut buffer = Vec::with_capacity(DEFAULT_BUF_SIZE);
             buffer.set_len(DEFAULT_BUF_SIZE);
-            // TODO: investigate necessety of next line
-            //            inner.initializer().initialize(&mut buffer);
             BiBufReader {
                 inner,
                 buf: buffer.into_boxed_slice(),
@@ -263,5 +263,29 @@ impl<R: Read> Read for BiBufReader<R> {
     // we can't skip unconditionally because of the large buffer case in read.
     unsafe fn initializer(&self) -> Initializer {
         self.inner.initializer()
+    }
+}
+
+pub struct StdinCursor {
+    cursor: Cursor<Vec<u8>>,
+}
+
+impl StdinCursor {
+    pub fn new(mut stdin_file: &File) -> StdinCursor {
+        let mut cursor: Cursor<Vec<u8>> = Cursor::new(Vec::new());
+        stdin_file.read_to_end(cursor.get_mut()).unwrap();
+        StdinCursor { cursor: cursor }
+    }
+}
+
+impl Seek for StdinCursor {
+    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
+        self.cursor.seek(pos)
+    }
+}
+
+impl Read for StdinCursor {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.cursor.read(buf)
     }
 }
