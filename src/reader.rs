@@ -276,8 +276,11 @@ impl<R: Read> Read for BiBufReader<R> {
 
 impl<R: Search+Seek> Search for BiBufReader<R> {
     fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
-        // TODO: Handle error
+        // Searching will seek from current position to end, so first have
+        // to remeber the current position, go to the beginning (we want to
+        // search the entire file), then go back to the original position.
         let cur_pos = self.seek(SeekFrom::Current(0)).unwrap();
+        self.inner.seek(SeekFrom::Start(0));
         self.inner.search(matches, pattern);
         self.inner.seek(SeekFrom::Start(cur_pos));
     }
@@ -292,6 +295,8 @@ pub struct StdinCursor {
 impl StdinCursor {
     pub fn new(mut stdin_file: File) -> StdinCursor {
         let mut cursor: Cursor<Vec<u8>> = Cursor::new(Vec::new());
+        // TODO: Currently reads the whole thing at the beginning. Could instead read while
+        // scrolling down.
         stdin_file.read_to_end(cursor.get_mut()).unwrap();
         StdinCursor {
             cursor: cursor,
@@ -351,7 +356,10 @@ impl Search for InputReader {
 
         match self {
             InputReader::Stdin(stdin_cursor) => {
-                eprintln!("No search for stdin");
+                match searcher::search_reader(&mut sink, stdin_cursor) {
+                    Err(_) => (),
+                    Ok(_) => (),
+                }
             }
             InputReader::File(file) => {
                 match searcher::search_file(&mut sink, file) {
@@ -363,6 +371,10 @@ impl Search for InputReader {
     }
 }
 
+/// This reader ensures that the position is always at a valid utf-8 code point, i.e., when seeking
+/// to a pos it will stop at a nearby valid point if the original is in the middle of a character.
+///
+/// The start position is assumed valid.
 pub struct ValidReader<R> {
     inner: R,
 }
@@ -380,6 +392,8 @@ impl<R: Read> Read for ValidReader<R> {
 }
 
 impl<R: Read + Seek> Seek for ValidReader<R> {
+
+    /// When seeking to a posi
     fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
         let mut pos = self.inner.seek(pos)?;
 

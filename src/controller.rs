@@ -48,13 +48,14 @@ impl Controller {
             Command::JumpBeginning => self.reader.jump_percentage(0)?,
             Command::JumpEnd => self.reader.jump_end()?,
             Command::JumpPercent(p) => self.reader.jump_percentage(p)?,
-            Command::JumpNextMatch => self.jump_next_match(),
+            Command::JumpNextMatch => { self.jump_next_match(); },
             Command::JumpPrevMatch => self.jump_prev_match(),
             Command::Search(pattern) => {
                 self.find_matches(&pattern);
                 dbg!(self.matches.len());
-                self.jump_next_match();
-                self.jump_prev_match();
+                if !self.jump_next_match() {
+                    self.jump_prev_match();
+                }
             }
             Command::Quit => {
                 self.quit = true;
@@ -70,12 +71,15 @@ impl Controller {
         self.reader.search(&mut self.matches, pattern);
     }
 
-    fn jump_next_match(&mut self) {
+    fn jump_next_match(&mut self) -> bool {
         let cur_offset = self.reader.current_offset().unwrap();
 
         match self.matches.iter().find(|(offset, _)| *offset > cur_offset) {
-            Some((offset, _)) => self.reader.jump_offset(*offset).unwrap(),
-            None => (),
+            Some((offset, _)) => {
+                self.reader.jump_offset(*offset).unwrap();
+                true
+            }
+            None => false,
         }
     }
 

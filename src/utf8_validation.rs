@@ -29,6 +29,43 @@ pub fn first_valid_pos(b: &[u8]) -> Option<usize> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_first_valid_pos() {
+        let s =
+            "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
+        let b = s.as_bytes();
+        assert_eq!(first_valid_pos(b), Some(0));
+        assert_eq!(first_valid_pos(&b[1..]), Some(2));
+        assert_eq!(first_valid_pos(&b[1..129]), Some(2));
+        assert_eq!(first_valid_pos(&b[3..129]), Some(0));
+        assert_eq!(first_valid_pos(&b[b.len() - 1..]), None);
+        assert_eq!(first_valid_pos(&b[0..0]), Some(0));
+        assert_eq!(first_valid_pos(&b[0..1]), None);
+    }
+
+    #[test]
+    fn test_utf8_validation() {
+        let s =
+            "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
+        let b = s.as_bytes();
+        assert_eq!(run_utf8_validation(b), Ok(()));
+        assert!(run_utf8_validation(&b[1..]).is_err());
+        assert_eq!(run_utf8_validation(&b[3..129]), Ok(()));
+    }
+}
+
+/// The following code is copied from the Rust standard library.
+/// It is used there internally in for example String::from_utf8
+/// and similar methods, but is not public.
+///
+/// ###########################################################
+/// ###########################################################
+
+
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
 pub struct Utf8Error {
     valid_up_to: usize,
@@ -205,31 +242,3 @@ const CONT_MASK: u8 = 0b0011_1111;
 /// Value of the tag bits (tag mask is !CONT_MASK) of a continuation byte.
 const TAG_CONT_U8: u8 = 0b1000_0000;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_first_valid_pos() {
-        let s =
-            "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
-        let b = s.as_bytes();
-        assert_eq!(first_valid_pos(b), Some(0));
-        assert_eq!(first_valid_pos(&b[1..]), Some(2));
-        assert_eq!(first_valid_pos(&b[1..129]), Some(2));
-        assert_eq!(first_valid_pos(&b[3..129]), Some(0));
-        assert_eq!(first_valid_pos(&b[b.len() - 1..]), None);
-        assert_eq!(first_valid_pos(&b[0..0]), Some(0));
-        assert_eq!(first_valid_pos(&b[0..1]), None);
-    }
-
-    #[test]
-    fn test_utf8_validation() {
-        let s =
-            "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
-        let b = s.as_bytes();
-        assert_eq!(run_utf8_validation(b), Ok(()));
-        assert!(run_utf8_validation(&b[1..]).is_err());
-        assert_eq!(run_utf8_validation(&b[3..129]), Ok(()));
-    }
-}
