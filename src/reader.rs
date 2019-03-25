@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{
-    self, stdin, BufRead, Cursor, Error, ErrorKind, Initializer, Read, Result,
-    Seek, SeekFrom, Stdin,
+    self, stdin, BufRead, Cursor, Initializer, Read, Seek, SeekFrom, Stdin,
 };
 use std::str;
 
@@ -9,6 +8,7 @@ use grep::matcher::Match;
 use grep::regex::RegexMatcher;
 
 use searcher;
+use error::{Error, Result};
 use standard::StandardSink;
 use string_util;
 use utf8_validation;
@@ -112,6 +112,13 @@ impl<R: Read + Seek> BiBufReader<R> {
         Ok((offset, page_buf[..bytes_read as usize].to_vec()))
     }
 
+    pub fn current_offset(&mut self) -> u64 {
+        return match self.inner.seek(SeekFrom::Current(0)) {
+            Err(_) => panic!("Fatal error. Couldn't get current offset!"),
+            Ok(pos) => pos,
+        }
+    }
+
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
         let cur_pos = self.inner.seek(SeekFrom::Current(0))?;
 
@@ -140,10 +147,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         let bytes_read = self.inner.read(&mut buf)?;
 
         if bytes_read == 0 {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Reached EOF. Can't make down buffer.",
-            ));
+            return Err(Error::GenericError);
         }
 
         self.inner.seek(SeekFrom::Current(-(bytes_read as i64)))?;
@@ -168,15 +172,14 @@ impl<R: Read + Seek> BiBufReader<R> {
         Ok(())
     }
 
-    pub fn seek_percent(&mut self, percent: u64) -> Result<u64> {
+    fn seek_percent(&mut self, percent: u64) -> Result<u64> {
         let size = self.inner.seek(SeekFrom::End(0))?;
         let offset = std::cmp::min(size, (size * percent / 100) as u64);
 
-        self.inner.seek(SeekFrom::Start(offset))
-    }
-
-    pub fn current_offset(&mut self) -> Result<u64> {
-        self.inner.seek(SeekFrom::Current(0))
+        match self.inner.seek(SeekFrom::Start(offset)) {
+            Err(_) => panic!("Fatal error in seek_percent!"),
+            Ok(pos) => Ok(pos),
+        }
     }
 }
         
@@ -315,10 +318,10 @@ impl<R: Read + Seek> Seek for ValidReader<R> {
         pos += match utf8_validation::first_valid_pos(&buf[..r]) {
             Some(offset) => offset as u64,
             None => {
-                return Err(Error::new(
-                    ErrorKind::Other,
-                    "No valid position found.",
-                ))
+                return Err(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "No valid position found.",
+                        ))
             }
         };
 

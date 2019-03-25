@@ -6,7 +6,7 @@ use grep::matcher::Match;
 use grep::regex::RegexMatcher;
 use grep::searcher::Searcher;
 
-use error::MError;
+use error::{Error, Result};
 use reader::InputReader;
 use standard::StandardSink;
 
@@ -14,27 +14,27 @@ use standard::StandardSink;
 pub fn search_reader<R: Read>(
     sink: &mut StandardSink,
     reader: R,
-) -> Result<(), MError> {
+) -> Result<()> {
     return match Searcher::new().search_reader(
         sink.matcher.clone(),
         reader,
         sink,
     ) {
-        Err(_) => Err(MError::Error),
+        Err(_) => Err(Error::GenericError),
         Ok(_) => Ok(()),
     };
 }
 
-pub fn search_file(sink: &mut StandardSink, file: &File) -> Result<(), MError> {
+pub fn search_file(sink: &mut StandardSink, file: &File) -> Result<()> {
     return match Searcher::new().search_file(sink.matcher.clone(), file, sink) {
-        Err(_) => Err(MError::Error),
+        Err(_) => Err(Error::GenericError),
         Ok(_) => Ok(()),
     };
 }
 
-pub fn search_path(sink: &mut StandardSink, path: &Path) -> Result<(), MError> {
+pub fn search_path(sink: &mut StandardSink, path: &Path) -> Result<()> {
     return match Searcher::new().search_path(sink.matcher.clone(), path, sink) {
-        Err(_) => Err(MError::Error),
+        Err(_) => Err(Error::GenericError),
         Ok(_) => Ok(()),
     };
 }

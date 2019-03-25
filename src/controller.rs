@@ -5,6 +5,7 @@ use grep::matcher::Match;
 use reader::{BiBufReader, InputReader, Search, ValidReader};
 use input::{Command, CommandLine, UserInput};
 use searcher;
+use error::Result;
 use util;
 
 pub struct Controller {
@@ -24,7 +25,7 @@ impl Controller {
         }
     }
 
-    pub fn update(&mut self, input: &UserInput) -> Result<(), std::io::Error> {
+    pub fn update(&mut self, input: &UserInput) -> Result<()> {
         let command = self.command_line.parse_input(input);
 
         match command {
@@ -69,7 +70,7 @@ impl Controller {
     }
 
     fn jump_next_match(&mut self) -> bool {
-        let cur_offset = self.reader.current_offset().unwrap();
+        let cur_offset = self.reader.current_offset();
 
         match self.matches.iter().find(|(offset, _)| *offset > cur_offset) {
             Some((offset, _)) => {
@@ -81,7 +82,7 @@ impl Controller {
     }
 
     fn jump_prev_match(&mut self) {
-        let cur_offset = self.reader.current_offset().unwrap();
+        let cur_offset = self.reader.current_offset();
         match self
             .matches
             .iter()
