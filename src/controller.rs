@@ -114,7 +114,10 @@ impl Controller {
     fn next_file(&mut self) {
         match self.reader.next_file() {
             Err(e) => eprintln!("{}", e),
-            Ok(_) => (),
+            Ok(_) => {
+                self.matches.clear();
+                ()
+            }
         }
     }
 }
