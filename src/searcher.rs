@@ -20,21 +20,21 @@ pub fn search_reader<R: Read>(
         reader,
         sink,
     ) {
-        Err(_) => Err(Error::GenericError),
+        Err(_) => Err(Error::SearchError),
         Ok(_) => Ok(()),
     };
 }
 
 pub fn search_file(sink: &mut StandardSink, file: &File) -> Result<()> {
     return match Searcher::new().search_file(sink.matcher.clone(), file, sink) {
-        Err(_) => Err(Error::GenericError),
+        Err(_) => Err(Error::SearchError),
         Ok(_) => Ok(()),
     };
 }
 
 pub fn search_path(sink: &mut StandardSink, path: &Path) -> Result<()> {
     return match Searcher::new().search_path(sink.matcher.clone(), path, sink) {
-        Err(_) => Err(Error::GenericError),
+        Err(_) => Err(Error::SearchError),
         Ok(_) => Ok(()),
     };
 }

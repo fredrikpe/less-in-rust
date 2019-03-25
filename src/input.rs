@@ -33,6 +33,8 @@ pub enum Command {
 
     Search(String),
 
+    NextFile,
+
     Quit,
     NoOp,
 }
@@ -117,6 +119,8 @@ impl CommandLine {
                 self.buffer.push(*c);
                 Command::NoOp
             }
+
+            Char('>') => Command::NextFile,
 
             Ctrl(_) => Command::NoOp,
             _ => Command::NoOp,

@@ -4,6 +4,12 @@ use std::io::stdin;
 
 use reader::{InputReader, StdinCursor};
 
+#[derive(Debug)]
+pub enum InputType {
+    Stdin(StdinCursor),
+    Files(Vec<File>),
+}
+
 pub struct App {
     pub matches: ArgMatches<'static>,
 }
@@ -16,26 +22,25 @@ impl App {
     }
 
     pub fn input_reader(&self) -> InputReader {
-        let files = self.matches
+        let files = self
+            .matches
             .values_of("FILE")
             .map(|values| {
                 values
-                .map(|filename| {
-                    File::open(filename).unwrap()
-                })
-                .collect()
+                    .map(|filename| File::open(filename).unwrap())
+                    .collect()
             })
-        .unwrap_or_else(|| Vec::new());
+            .unwrap_or_else(|| Vec::new());
 
         return if files.len() > 0 {
-            InputReader::Files(files)
+            InputReader::new(InputType::Files(files))
         } else {
             let stdin = stdin();
             if termion::is_tty(&stdin) {
                 eprintln!("Expected a file or input over stdin.");
             }
             self.stdin_reader()
-        }
+        };
     }
 
     fn stdin_reader(&self) -> InputReader {
@@ -49,7 +54,7 @@ impl App {
             libc::dup2(tty.as_raw_fd(), 0);
             ::std::mem::forget(tty);
 
-            InputReader::Stdin(StdinCursor::new(file))
+            InputReader::new(InputType::Stdin(StdinCursor::new(file)))
         }
     }
 }

@@ -1,14 +1,16 @@
-
+use std::convert::From;
 use std::error;
 use std::fmt;
 use std::num::ParseIntError;
-use std::convert::From;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Clone)]
 pub enum Error {
-    GenericError,
+    Other,
+    IOError,
+    NoNextFile,
+    SearchError,
 }
 
 impl fmt::Display for Error {
@@ -30,6 +32,6 @@ impl error::Error for Error {
 
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Error {
-        Error::GenericError
+        Error::IOError
     }
 }

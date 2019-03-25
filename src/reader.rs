@@ -7,8 +7,9 @@ use std::str;
 use grep::matcher::Match;
 use grep::regex::RegexMatcher;
 
-use searcher;
+use app::InputType;
 use error::{Error, Result};
+use searcher;
 use standard::StandardSink;
 use string_util;
 use utf8_validation;
@@ -21,7 +22,7 @@ pub trait Search {
 }
 
 pub trait FileSwitcher {
-    fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str);
+    fn next_file(&mut self) -> Result<()>;
 }
 
 pub struct BiBufReader<R> {
@@ -75,7 +76,6 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     pub fn down_n_lines(&mut self, n: usize) -> Result<()> {
-        eprint!("down, ");
         self.pcur_pos()?;
         let (buf, size) = self.make_buf_down()?;
 
@@ -101,6 +101,7 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         let bytes_read = match self.inner.read(&mut page_buf[..]) {
             Err(e) => {
+                panic!("asdfasdf");
                 eprintln!("errorrrr {}", e);
                 0
             }
@@ -116,7 +117,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         return match self.inner.seek(SeekFrom::Current(0)) {
             Err(_) => panic!("Fatal error. Couldn't get current offset!"),
             Ok(pos) => pos,
-        }
+        };
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
@@ -132,7 +133,8 @@ impl<R: Read + Seek> BiBufReader<R> {
 
         let bytes_read = self.inner.read(&mut buf[..size])?;
 
-        self.inner.seek(SeekFrom::Current((size - bytes_read) as i64))?;
+        self.inner
+            .seek(SeekFrom::Current((size - bytes_read) as i64))?;
 
         assert_eq!(cur_pos, self.inner.seek(SeekFrom::Current(0))?);
         Ok(string_util::make_valid(buf))
@@ -147,7 +149,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         let bytes_read = self.inner.read(&mut buf)?;
 
         if bytes_read == 0 {
-            return Err(Error::GenericError);
+            return Err(Error::Other);
         }
 
         self.inner.seek(SeekFrom::Current(-(bytes_read as i64)))?;
@@ -182,8 +184,8 @@ impl<R: Read + Seek> BiBufReader<R> {
         }
     }
 }
-        
-impl<R: Search+Seek> Search for BiBufReader<R> {
+
+impl<R: Search + Seek> Search for BiBufReader<R> {
     fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
         // Searching will seek from current position to end, so first have
         // to remeber the current position, go to the beginning (we want to
@@ -195,10 +197,157 @@ impl<R: Search+Seek> Search for BiBufReader<R> {
     }
 }
 
+impl<F: FileSwitcher> FileSwitcher for BiBufReader<F> {
+    fn next_file(&mut self) -> Result<()> {
+        self.inner.next_file()
+    }
+}
+
 #[derive(Debug)]
 pub struct StdinCursor {
     cursor: Cursor<Vec<u8>>,
     pub file: File,
+}
+
+/// This reader ensures that the position is always at a valid utf-8 code point, i.e., when seeking
+/// to a pos it will stop at a nearby valid point if the original is in the middle of a character.
+///
+/// The start position is assumed valid.
+pub struct ValidReader<R> {
+    inner: R,
+}
+
+impl<R: Read> ValidReader<R> {
+    pub fn new(reader: R) -> ValidReader<R> {
+        ValidReader { inner: reader }
+    }
+}
+
+impl<R: Read> Read for ValidReader<R> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.inner.read(buf)
+    }
+}
+
+impl<R: Read + Seek> Seek for ValidReader<R> {
+    /// When seeking to a posi
+    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
+        let mut pos = self.inner.seek(pos)?;
+
+        // We assume start is always valid
+        if pos == 0 {
+            return Ok(pos);
+        }
+
+        // Me thinks 8 is enough?
+        let mut buf: [u8; 8] = [0; 8];
+        let r = self.read(&mut buf)?;
+
+        pos += match utf8_validation::first_valid_pos(&buf[..r]) {
+            Some(offset) => offset as u64,
+            None => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "No valid position found.",
+                ))
+            }
+        };
+
+        self.inner.seek(SeekFrom::Start(pos))
+    }
+}
+
+impl<S: Search> Search for ValidReader<S> {
+    fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
+        self.inner.search(matches, pattern)
+    }
+}
+
+impl<F: FileSwitcher> FileSwitcher for ValidReader<F> {
+    fn next_file(&mut self) -> Result<()> {
+        self.inner.next_file()
+    }
+}
+
+pub struct InputReader {
+    input_type: InputType,
+    current_file: usize,
+}
+
+impl InputReader {
+    pub fn new(input_type: InputType) -> InputReader {
+        InputReader {
+            input_type: input_type,
+            current_file: 0,
+        }
+    }
+}
+
+impl Read for InputReader {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        return match &mut self.input_type {
+            InputType::Stdin(stdin_cursor) => stdin_cursor.read(buf),
+            InputType::Files(files) => (&files[self.current_file]).read(buf),
+        };
+    }
+}
+
+impl Seek for InputReader {
+    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
+        return match &mut self.input_type {
+            InputType::Stdin(stdin_cursor) => stdin_cursor.seek(pos),
+            InputType::Files(files) => (&files[self.current_file]).seek(pos),
+        };
+    }
+}
+
+impl Search for InputReader {
+    fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
+        let matcher = match RegexMatcher::new(&pattern[..]) {
+            Err(_) => return,
+            Ok(m) => m,
+        };
+
+        let mut sink = StandardSink {
+            matcher: matcher,
+            matches: matches,
+            match_count: 0,
+        };
+
+        match &mut self.input_type {
+            InputType::Stdin(stdin_cursor) => {
+                match searcher::search_reader(&mut sink, stdin_cursor) {
+                    Err(_) => (),
+                    Ok(_) => (),
+                }
+            }
+            InputType::Files(files) => {
+                match searcher::search_file(
+                    &mut sink,
+                    &files[self.current_file],
+                ) {
+                    Err(_) => (),
+                    Ok(_) => (),
+                }
+            }
+        }
+    }
+}
+
+impl FileSwitcher for InputReader {
+    fn next_file(&mut self) -> Result<()> {
+        return match &mut self.input_type {
+            InputType::Stdin(stdin_cursor) => stdin_cursor.next_file(),
+            InputType::Files(files) => {
+                self.current_file = if self.current_file == files.len() - 1 {
+                    0
+                } else {
+                    self.current_file + 1
+                };
+                Ok(())
+            }
+        };
+    }
 }
 
 impl StdinCursor {
@@ -226,112 +375,9 @@ impl Read for StdinCursor {
     }
 }
 
-#[derive(Debug)]
-pub enum InputReader {
-    Stdin(StdinCursor),
-    Files(Vec<File>),
-}
-
-impl Read for InputReader {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        return match self {
-            InputReader::Stdin(stdin_cursor) => stdin_cursor.read(buf),
-            InputReader::Files(files) => (&files[0]).read(buf),
-        };
-    }
-}
-
-impl Seek for InputReader {
-    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
-        return match self {
-            InputReader::Stdin(stdin_cursor) => stdin_cursor.seek(pos),
-            InputReader::Files(files) => (&files[0]).seek(pos),
-        };
-    }
-}
-
-impl Search for InputReader {
-    fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
-        let matcher = match RegexMatcher::new(&pattern[..]) {
-            Err(_) => return,
-            Ok(m) => m,
-        };
-
-        let mut sink = StandardSink {
-            matcher: matcher,
-            matches: matches,
-            match_count: 0,
-        };
-
-        match self {
-            InputReader::Stdin(stdin_cursor) => {
-                match searcher::search_reader(&mut sink, stdin_cursor) {
-                    Err(_) => (),
-                    Ok(_) => (),
-                }
-            }
-            InputReader::Files(files) => {
-                match searcher::search_file(&mut sink, &files[0]) {
-                    Err(_) => (),
-                    Ok(_) => (),
-                }
-            }
-        }
-    }
-}
-
-/// This reader ensures that the position is always at a valid utf-8 code point, i.e., when seeking
-/// to a pos it will stop at a nearby valid point if the original is in the middle of a character.
-///
-/// The start position is assumed valid.
-pub struct ValidReader<R> {
-    inner: R,
-}
-
-impl<R: Read> ValidReader<R> {
-    pub fn new(reader: R) -> ValidReader<R> {
-        ValidReader { inner: reader }
-    }
-}
-
-impl<R: Read> Read for ValidReader<R> {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.inner.read(buf)
-    }
-}
-
-impl<R: Read + Seek> Seek for ValidReader<R> {
-
-    /// When seeking to a posi
-    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
-        let mut pos = self.inner.seek(pos)?;
-
-        // We assume start is always valid
-        if pos == 0 {
-            return Ok(pos);
-        }
-
-        // Me thinks 8 is enough?
-        let mut buf: [u8; 8] = [0; 8];
-        let r = self.read(&mut buf)?;
-
-        pos += match utf8_validation::first_valid_pos(&buf[..r]) {
-            Some(offset) => offset as u64,
-            None => {
-                return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        "No valid position found.",
-                        ))
-            }
-        };
-
-        self.inner.seek(SeekFrom::Start(pos))
-    }
-}
-
-impl<S: Search> Search for ValidReader<S> {
-    fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
-        self.inner.search(matches, pattern)
+impl FileSwitcher for StdinCursor {
+    fn next_file(&mut self) -> Result<()> {
+        Err(Error::NoNextFile)
     }
 }
 

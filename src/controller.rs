@@ -2,10 +2,10 @@ use std::io::{stdin, Stdin};
 
 use grep::matcher::Match;
 
-use reader::{BiBufReader, InputReader, Search, ValidReader};
-use input::{Command, CommandLine, UserInput};
-use searcher;
 use error::Result;
+use input::{Command, CommandLine, UserInput};
+use reader::{BiBufReader, FileSwitcher, InputReader, Search, ValidReader};
+use searcher;
 use util;
 
 pub struct Controller {
@@ -46,7 +46,9 @@ impl Controller {
             Command::JumpBeginning => self.reader.jump_percentage(0)?,
             Command::JumpEnd => self.reader.jump_end()?,
             Command::JumpPercent(p) => self.reader.jump_percentage(p)?,
-            Command::JumpNextMatch => { self.jump_next_match(); },
+            Command::JumpNextMatch => {
+                self.jump_next_match();
+            }
             Command::JumpPrevMatch => self.jump_prev_match(),
             Command::Search(pattern) => {
                 self.find_matches(&pattern);
@@ -55,6 +57,7 @@ impl Controller {
                     self.jump_prev_match();
                 }
             }
+            Command::NextFile => self.next_file(),
             Command::Quit => {
                 self.quit = true;
             }
@@ -62,6 +65,20 @@ impl Controller {
         }
 
         Ok(())
+    }
+
+    pub fn page(&mut self) -> (u64, Vec<u8>) {
+        return match self.reader.page() {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("{}", e);
+                (1, Vec::new())
+            }
+        };
+    }
+
+    pub fn command_line_text(&self) -> String {
+        return self.command_line.text();
     }
 
     fn find_matches(&mut self, pattern: &str) {
@@ -94,17 +111,10 @@ impl Controller {
         }
     }
 
-    pub fn page(&mut self) -> (u64, Vec<u8>) {
-        return match self.reader.page() {
-            Ok(s) => s,
-            Err(e) => {
-                eprintln!("{}", e);
-                (1, Vec::new())
-            }
-        };
-    }
-
-    pub fn command_line_text(&self) -> String {
-        return self.command_line.text();
+    fn next_file(&mut self) {
+        match self.reader.next_file() {
+            Err(e) => eprintln!("{}", e),
+            Ok(_) => (),
+        }
     }
 }

@@ -65,7 +65,6 @@ mod tests {
 /// ###########################################################
 /// ###########################################################
 
-
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
 pub struct Utf8Error {
     valid_up_to: usize,
@@ -241,4 +240,3 @@ static UTF8_CHAR_WIDTH: [u8; 256] = [
 const CONT_MASK: u8 = 0b0011_1111;
 /// Value of the tag bits (tag mask is !CONT_MASK) of a continuation byte.
 const TAG_CONT_U8: u8 = 0b1000_0000;
-
