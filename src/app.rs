@@ -15,7 +15,7 @@ impl App {
         }
     }
 
-    pub fn input_source(&self) -> (InputReader, File) {
+    pub fn input_source(&self) -> InputReader {
         let stdin = stdin();
         let input_file = self.matches.value_of("FILE");
 
@@ -27,21 +27,17 @@ impl App {
                 let tty = File::open("/dev/tty").unwrap();
                 let stdin_fd = libc::dup(0);
                 let file = File::from_raw_fd(stdin_fd);
-                let file_copy = File::from_raw_fd(stdin_fd);
                 libc::dup2(tty.as_raw_fd(), 0);
                 ::std::mem::forget(tty);
 
-                (InputReader::Stdin(StdinCursor::new(file)), file_copy)
+                InputReader::Stdin(StdinCursor::new(file))
             }
         } else {
             match input_file {
-                Some(filename) => (
-                    InputReader::File(File::open(filename).unwrap()),
-                    File::open(filename).unwrap(),
-                ),
+                Some(filename) => InputReader::File(File::open(filename).unwrap()),
                 // Must have a filename as input.
                 None => {
-                    eprintln!("Expected 'rager <input>' or input over stdin.");
+                    eprintln!("Expected a file or input over stdin.");
                     ::std::process::exit(1);
                 }
             }

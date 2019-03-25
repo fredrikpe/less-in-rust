@@ -9,7 +9,6 @@ extern crate unicode_segmentation;
 
 use termion::raw::IntoRawMode;
 
-use std::fs::File;
 use std::io::{stdin, stdout};
 use std::path::Path;
 use std::result::Result;
@@ -29,17 +28,17 @@ mod util;
 fn main() {
     let app = app::App::new();
 
-    let (input_reader, file) = app.input_source();
+    let input_reader = app.input_source();
 
-    if let Err(_) = run(input_reader, file) {
+    if let Err(_) = run(input_reader) {
         std::process::exit(1);
     }
 }
 
-fn run(input_file: reader::InputReader, file: File) -> Result<(), ()> {
+fn run(input_file: reader::InputReader) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
 
-    let mut controller = controller::Controller::new(input_file, file);
+    let mut controller = controller::Controller::new(input_file);
 
     loop {
         let _ = printer.render(

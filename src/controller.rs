@@ -1,4 +1,3 @@
-use std::fs::File;
 use std::io::{stdin, Stdin};
 
 use grep::matcher::Match;
@@ -12,17 +11,15 @@ pub struct Controller {
     pub reader: BiBufReader<ValidReader<InputReader>>,
     pub quit: bool,
     command_line: CommandLine,
-    file: File,
     pub matches: Vec<(u64, Match)>,
 }
 
 impl Controller {
-    pub fn new(input_reader: InputReader, file: File) -> Controller {
+    pub fn new(input_reader: InputReader) -> Controller {
         Controller {
             reader: BiBufReader::new(ValidReader::new(input_reader)),
             quit: false,
             command_line: CommandLine::new(),
-            file: file,
             matches: Vec::new(),
         }
     }
