@@ -26,27 +26,21 @@ pub trait FileSwitcher {
 
 pub struct BiBufReader<R> {
     inner: R,
-    buf: Box<[u8]>,
     pos: usize,
     cap: usize,
 }
 
 impl<R: Read + Seek> BiBufReader<R> {
     pub fn new(inner: R) -> BiBufReader<R> {
-        unsafe {
-            let mut buffer = Vec::with_capacity(DEFAULT_BUF_SIZE);
-            buffer.set_len(DEFAULT_BUF_SIZE);
-            BiBufReader {
-                inner,
-                buf: buffer.into_boxed_slice(),
-                pos: 0,
-                cap: 0,
-            }
+        BiBufReader {
+            inner,
+            pos: 0,
+            cap: 0,
         }
     }
 
     pub fn jump_offset(&mut self, offset: u64) -> Result<()> {
-        self.seek(SeekFrom::Start(offset))?;
+        self.inner.seek(SeekFrom::Start(offset))?;
         Ok(())
     }
 
@@ -74,7 +68,7 @@ impl<R: Read + Seek> BiBufReader<R> {
                     str::from_utf8_unchecked(&buf[..]),
                     screen_width as usize,
                 ) as i64;
-            self.seek(SeekFrom::Current(-(offset as i64)))?;
+            self.inner.seek(SeekFrom::Current(-(offset as i64)))?;
         }
 
         Ok(())
@@ -93,7 +87,7 @@ impl<R: Read + Seek> BiBufReader<R> {
                 str::from_utf8_unchecked(&buf[..size]),
                 screen_width as usize,
             );
-            self.seek(SeekFrom::Current(newline_offset as i64))?;
+            self.inner.seek(SeekFrom::Current(newline_offset as i64))?;
         }
 
         Ok(())
@@ -105,7 +99,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         let mut page_buf = Vec::with_capacity(size);
         page_buf.resize(size, 0);
 
-        let bytes_read = match self.read(&mut page_buf[..]) {
+        let bytes_read = match self.inner.read(&mut page_buf[..]) {
             Err(e) => {
                 eprintln!("errorrrr {}", e);
                 0
@@ -113,37 +107,37 @@ impl<R: Read + Seek> BiBufReader<R> {
             Ok(s) => s as i64,
         };
 
-        let offset = self.seek(SeekFrom::Current(-bytes_read))?;
+        let offset = self.inner.seek(SeekFrom::Current(-bytes_read))?;
 
         Ok((offset, page_buf[..bytes_read as usize].to_vec()))
     }
 
     fn make_buf_up(&mut self) -> Result<Vec<u8>> {
-        let cur_pos = self.seek(SeekFrom::Current(0))?;
+        let cur_pos = self.inner.seek(SeekFrom::Current(0))?;
 
         let size = std::cmp::min(
             self.search_buf_size(),
-            self.seek(SeekFrom::Current(0))? as usize,
+            self.inner.seek(SeekFrom::Current(0))? as usize,
         );
 
         let mut buf = vec![0; size];
-        let _ = self.seek(SeekFrom::Current(-(size as i64)))?;
+        let _ = self.inner.seek(SeekFrom::Current(-(size as i64)))?;
 
-        let bytes_read = self.read(&mut buf[..size])?;
+        let bytes_read = self.inner.read(&mut buf[..size])?;
 
-        self.seek(SeekFrom::Current((size - bytes_read) as i64))?;
+        self.inner.seek(SeekFrom::Current((size - bytes_read) as i64))?;
 
-        assert_eq!(cur_pos, self.seek(SeekFrom::Current(0))?);
+        assert_eq!(cur_pos, self.inner.seek(SeekFrom::Current(0))?);
         Ok(string_util::make_valid(buf))
     }
 
     fn make_buf_down(&mut self) -> Result<(Vec<u8>, usize)> {
-        let cur_pos = self.seek(SeekFrom::Current(0))?;
+        let cur_pos = self.inner.seek(SeekFrom::Current(0))?;
 
         let size = self.search_buf_size();
         let mut buf = vec![0; size as usize];
 
-        let bytes_read = self.read(&mut buf)?;
+        let bytes_read = self.inner.read(&mut buf)?;
 
         if bytes_read == 0 {
             return Err(Error::new(
@@ -152,9 +146,9 @@ impl<R: Read + Seek> BiBufReader<R> {
             ));
         }
 
-        self.seek(SeekFrom::Current(-(bytes_read as i64)))?;
+        self.inner.seek(SeekFrom::Current(-(bytes_read as i64)))?;
 
-        assert_eq!(cur_pos, self.seek(SeekFrom::Current(0))?);
+        assert_eq!(cur_pos, self.inner.seek(SeekFrom::Current(0))?);
         Ok((buf, bytes_read))
     }
 
@@ -168,122 +162,30 @@ impl<R: Read + Seek> BiBufReader<R> {
     }
 
     fn pcur_pos(&mut self) -> Result<()> {
-        if let Ok(cur_pos) = self.seek(SeekFrom::Current(0)) {
+        if let Ok(cur_pos) = self.inner.seek(SeekFrom::Current(0)) {
             eprintln!("cur_pos: {}", cur_pos);
         }
         Ok(())
     }
 
     pub fn seek_percent(&mut self, percent: u64) -> Result<u64> {
-        let size = self.seek(SeekFrom::End(0))?;
+        let size = self.inner.seek(SeekFrom::End(0))?;
         let offset = std::cmp::min(size, (size * percent / 100) as u64);
 
-        self.seek(SeekFrom::Start(offset))
+        self.inner.seek(SeekFrom::Start(offset))
     }
 
     pub fn current_offset(&mut self) -> Result<u64> {
-        self.seek(SeekFrom::Current(0))
+        self.inner.seek(SeekFrom::Current(0))
     }
 }
-
-impl<R: Read> BufRead for BiBufReader<R> {
-    fn fill_buf(&mut self) -> io::Result<&[u8]> {
-        // If we've reached the end of our internal buffer then we need to fetch
-        // some more data from the underlying reader.
-        // Branch using `>=` instead of the more correct `==`
-        // to tell the compiler that the pos..cap slice is always valid.
-        if self.pos >= self.cap {
-            debug_assert!(self.pos == self.cap);
-            self.cap = self.inner.read(&mut self.buf)?;
-            self.pos = 0;
-        }
-        Ok(&self.buf[self.pos..self.cap])
-    }
-
-    fn consume(&mut self, amt: usize) {
-        self.pos = std::cmp::min(self.pos + amt, self.cap);
-    }
-}
-
-impl<R: Seek> Seek for BiBufReader<R> {
-    /// Seek to an offset, in bytes, in the underlying reader.
-    ///
-    /// The position used for seeking with `SeekFrom::Current(_)` is the
-    /// position the underlying reader would be at if the `BufReader` had no
-    /// internal buffer.
-    ///
-    /// Seeking always discards the internal buffer, even if the seek position
-    /// would otherwise fall within it. This guarantees that calling
-    /// `.into_inner()` immediately after a seek yields the underlying reader
-    /// at the same position.
-    ///
-    /// To seek without discarding the internal buffer, use [`seek_relative`].
-    ///
-    /// See `std::io::Seek` for more details.
-    ///
-    /// Note: In the edge case where you're seeking with `SeekFrom::Current(n)`
-    /// where `n` minus the internal buffer length overflows an `i64`, two
-    /// seeks will be performed instead of one. If the second seek returns
-    /// `Err`, the underlying reader will be left at the same position it would
-    /// have if you called `seek` with `SeekFrom::Current(0)`.
-    ///
-    /// [`seek_relative`]: #method.seek_relative
-    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
-        let result: u64;
-        if let SeekFrom::Current(n) = pos {
-            let remainder = (self.cap - self.pos) as i64;
-            // it should be safe to assume that remainder fits within an i64 as the alternative
-            // means we managed to allocate 8 exbibytes and that's absurd.
-            // But it's not out of the realm of possibility for some weird underlying reader to
-            // support seeking by i64::min_value() so we need to handle underflow when subtracting
-            // remainder.
-            if let Some(offset) = n.checked_sub(remainder) {
-                result = self.inner.seek(SeekFrom::Current(offset))?;
-            } else {
-                // seek backwards by our remainder, and then by the offset
-                self.inner.seek(SeekFrom::Current(-remainder))?;
-                self.pos = self.cap; // empty the buffer
-                result = self.inner.seek(SeekFrom::Current(n))?;
-            }
-        } else {
-            // Seeking with Start/End doesn't care about our buffer length.
-            result = self.inner.seek(pos)?;
-        }
-        self.pos = self.cap; // empty the buffer
-
-        Ok(result)
-    }
-}
-
-impl<R: Read> Read for BiBufReader<R> {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        // If we don't have any buffered data and we're doing a massive read
-        // (larger than our internal buffer), bypass our internal buffer
-        // entirely.
-        if self.pos == self.cap && buf.len() >= self.buf.len() {
-            return self.inner.read(buf);
-        }
-        let nread = {
-            let mut rem = self.fill_buf()?;
-            rem.read(buf)?
-        };
-        self.consume(nread);
-        debug_assert!(utf8_validation::first_valid_pos(buf).unwrap() == 0);
-        Ok(nread)
-    }
-
-    // we can't skip unconditionally because of the large buffer case in read.
-    unsafe fn initializer(&self) -> Initializer {
-        self.inner.initializer()
-    }
-}
-
+        
 impl<R: Search+Seek> Search for BiBufReader<R> {
     fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str) {
         // Searching will seek from current position to end, so first have
         // to remeber the current position, go to the beginning (we want to
         // search the entire file), then go back to the original position.
-        let cur_pos = self.seek(SeekFrom::Current(0)).unwrap();
+        let cur_pos = self.inner.seek(SeekFrom::Current(0)).unwrap();
         self.inner.seek(SeekFrom::Start(0));
         self.inner.search(matches, pattern);
         self.inner.seek(SeekFrom::Start(cur_pos));
