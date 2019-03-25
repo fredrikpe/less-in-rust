@@ -20,6 +20,10 @@ pub trait Search {
     fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str);
 }
 
+pub trait FileSwitcher {
+    fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str);
+}
+
 pub struct BiBufReader<R> {
     inner: R,
     buf: Box<[u8]>,
@@ -320,14 +324,14 @@ impl Read for StdinCursor {
 #[derive(Debug)]
 pub enum InputReader {
     Stdin(StdinCursor),
-    File(File),
+    Files(Vec<File>),
 }
 
 impl Read for InputReader {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         return match self {
             InputReader::Stdin(stdin_cursor) => stdin_cursor.read(buf),
-            InputReader::File(file) => file.read(buf),
+            InputReader::Files(files) => (&files[0]).read(buf),
         };
     }
 }
@@ -336,7 +340,7 @@ impl Seek for InputReader {
     fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
         return match self {
             InputReader::Stdin(stdin_cursor) => stdin_cursor.seek(pos),
-            InputReader::File(file) => file.seek(pos),
+            InputReader::Files(files) => (&files[0]).seek(pos),
         };
     }
 }
@@ -361,8 +365,8 @@ impl Search for InputReader {
                     Ok(_) => (),
                 }
             }
-            InputReader::File(file) => {
-                match searcher::search_file(&mut sink, file) {
+            InputReader::Files(files) => {
+                match searcher::search_file(&mut sink, &files[0]) {
                     Err(_) => (),
                     Ok(_) => (),
                 }

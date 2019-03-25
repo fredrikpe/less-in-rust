@@ -28,7 +28,7 @@ mod util;
 fn main() {
     let app = app::App::new();
 
-    let input_reader = app.input_source();
+    let input_reader = app.input_reader();
 
     if let Err(_) = run(input_reader) {
         std::process::exit(1);

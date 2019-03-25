@@ -15,34 +15,42 @@ impl App {
         }
     }
 
-    pub fn input_source(&self) -> InputReader {
-        let stdin = stdin();
-        let input_file = self.matches.value_of("FILE");
+    pub fn input_reader(&self) -> InputReader {
+        let files = self.matches
+            .values_of("FILE")
+            .map(|values| {
+                values
+                .map(|filename| {
+                    File::open(filename).unwrap()
+                })
+                .collect()
+            })
+        .unwrap_or_else(|| Vec::new());
 
-        // Swap stdin and TTY
-        let input = if !termion::is_tty(&stdin) {
-            // https://stackoverflow.com/a/29694013
-            unsafe {
-                use std::os::unix::io::*;
-                let tty = File::open("/dev/tty").unwrap();
-                let stdin_fd = libc::dup(0);
-                let file = File::from_raw_fd(stdin_fd);
-                libc::dup2(tty.as_raw_fd(), 0);
-                ::std::mem::forget(tty);
-
-                InputReader::Stdin(StdinCursor::new(file))
-            }
+        return if files.len() > 0 {
+            InputReader::Files(files)
         } else {
-            match input_file {
-                Some(filename) => InputReader::File(File::open(filename).unwrap()),
-                // Must have a filename as input.
-                None => {
-                    eprintln!("Expected a file or input over stdin.");
-                    ::std::process::exit(1);
-                }
+            let stdin = stdin();
+            if termion::is_tty(&stdin) {
+                eprintln!("Expected a file or input over stdin.");
             }
-        };
-        input
+            self.stdin_reader()
+        }
+    }
+
+    fn stdin_reader(&self) -> InputReader {
+        unsafe {
+            use std::os::unix::io::*;
+
+            let tty = File::open("/dev/tty").unwrap();
+            let stdin_fd = libc::dup(0);
+            let file = File::from_raw_fd(stdin_fd);
+
+            libc::dup2(tty.as_raw_fd(), 0);
+            ::std::mem::forget(tty);
+
+            InputReader::Stdin(StdinCursor::new(file))
+        }
     }
 }
 
@@ -55,7 +63,7 @@ fn clap_app() -> ClapApp<'static, 'static> {
             Arg::with_name("FILE")
                 .help("File to view.")
                 .long_help("File to view.")
-                .multiple(false)
+                .multiple(true)
                 .empty_values(false),
         )
         .help_message("Print this help message.")
