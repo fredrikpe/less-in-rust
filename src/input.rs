@@ -28,10 +28,9 @@ pub enum Command {
     JumpBeginning,
     JumpEnd,
     JumpPercent(u64),
-    JumpNextMatch,
-    JumpPrevMatch,
+    JumpNextMatch(bool),
 
-    Search(String),
+    Search(String, bool),
 
     NextFile,
 
@@ -63,6 +62,7 @@ fn parse_char(c: char) -> UserInput {
     };
 }
 
+#[derive(Clone)]
 enum Mode {
     Normal,
     Search,
@@ -70,6 +70,7 @@ enum Mode {
 
 pub struct CommandLine {
     mode: Mode,
+    is_forward: bool,
     buffer: String,
 }
 
@@ -77,6 +78,7 @@ impl CommandLine {
     pub fn new() -> CommandLine {
         CommandLine {
             mode: Mode::Normal,
+            is_forward: true,
             buffer: String::new(),
         }
     }
@@ -107,10 +109,16 @@ impl CommandLine {
             Char('G') => Command::JumpEnd,
             Char('p') => Command::JumpPercent(self.number()),
 
-            Char('n') => Command::JumpNextMatch,
-            Char('N') => Command::JumpPrevMatch,
+            Char('n') => Command::JumpNextMatch(self.is_forward),
+            Char('N') => Command::JumpNextMatch(!self.is_forward),
 
             Char('/') => {
+                self.is_forward = true;
+                self.mode = Mode::Search;
+                Command::NoOp
+            }
+            Char('?') => {
+                self.is_forward = false;
                 self.mode = Mode::Search;
                 Command::NoOp
             }
@@ -134,21 +142,20 @@ impl CommandLine {
 
     fn search_parse(&mut self, input: &UserInput) -> Command {
         let command = match input {
+            // TODO: This exits the program. I don't understand why.
             UserInput::Ctrl('c') => {
                 self.mode = Mode::Normal;
                 Command::NoOp
             }
 
             UserInput::Char('\n') => {
-                eprintln!("enter pressed");
                 let pattern = self.buffer.clone();
                 self.buffer.clear();
                 self.mode = Mode::Normal;
-                Command::Search(pattern)
+                Command::Search(pattern, self.is_forward)
             }
 
             UserInput::Backspace => {
-                eprintln!("backspace");
                 self.buffer.pop();
                 Command::NoOp
             }
@@ -171,12 +178,15 @@ impl CommandLine {
     }
 
     pub fn text(&self) -> String {
-        return match self.mode {
+        return match self.mode.clone() {
             Mode::Normal => match self.number() {
                 0 => format!(":"),
                 n => format!(":{}", n),
             },
-            Mode::Search => format!("/{}", self.buffer),
+            Mode::Search => match self.is_forward {
+                true => format!("/{}", self.buffer),
+                false => format!("?{}", self.buffer),
+            },
         };
     }
 

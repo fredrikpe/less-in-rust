@@ -46,17 +46,16 @@ impl Controller {
             Command::JumpBeginning => self.reader.jump_percentage(0)?,
             Command::JumpEnd => self.reader.jump_end()?,
             Command::JumpPercent(p) => self.reader.jump_percentage(p)?,
-            Command::JumpNextMatch => {
-                self.jump_next_match();
+
+            Command::JumpNextMatch(is_forward) => {
+                self.jump_next_match(is_forward)
             }
-            Command::JumpPrevMatch => self.jump_prev_match(),
-            Command::Search(pattern) => {
+
+            Command::Search(pattern, is_forward) => {
                 self.find_matches(&pattern);
-                dbg!(self.matches.len());
-                if !self.jump_next_match() {
-                    self.jump_prev_match();
-                }
+                self.jump_next_match(is_forward)
             }
+
             Command::NextFile => self.next_file(),
             Command::Quit => {
                 self.quit = true;
@@ -86,20 +85,23 @@ impl Controller {
         self.reader.search(&mut self.matches, pattern);
     }
 
-    fn jump_next_match(&mut self) -> bool {
+    fn jump_next_match(&mut self, is_forward: bool) {
         let cur_offset = self.reader.current_offset();
+        if is_forward {
+            self.jump_forward_match(cur_offset)
+        } else {
+            self.jump_backward_match(cur_offset)
+        };
+    }
 
+    fn jump_forward_match(&mut self, cur_offset: u64) {
         match self.matches.iter().find(|(offset, _)| *offset > cur_offset) {
-            Some((offset, _)) => {
-                self.reader.jump_offset(*offset).unwrap();
-                true
-            }
-            None => false,
+            Some((offset, _)) => self.reader.jump_offset(*offset).unwrap(),
+            None => (),
         }
     }
 
-    fn jump_prev_match(&mut self) {
-        let cur_offset = self.reader.current_offset();
+    fn jump_backward_match(&mut self, cur_offset: u64) {
         match self
             .matches
             .iter()
