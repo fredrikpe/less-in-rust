@@ -9,8 +9,7 @@ extern crate unicode_segmentation;
 
 use termion::raw::IntoRawMode;
 
-use std::io::{stdin, stdout};
-use std::path::Path;
+use std::io::stdout;
 use std::result::Result;
 
 mod app;
@@ -21,7 +20,6 @@ mod printer;
 mod reader;
 mod searcher;
 mod standard;
-mod string_util;
 mod utf8_validation;
 mod util;
 

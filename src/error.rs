@@ -1,7 +1,6 @@
 use std::convert::From;
 use std::error;
 use std::fmt;
-use std::num::ParseIntError;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -31,7 +30,7 @@ impl error::Error for Error {
 }
 
 impl From<std::io::Error> for Error {
-    fn from(err: std::io::Error) -> Error {
+    fn from(_err: std::io::Error) -> Error {
         Error::IOError
     }
 }

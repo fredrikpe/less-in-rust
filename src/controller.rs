@@ -1,11 +1,9 @@
-use std::io::{stdin, Stdin};
 
 use grep::matcher::Match;
 
 use error::Result;
 use input::{Command, CommandLine, UserInput};
 use reader::{BiBufReader, FileSwitcher, InputReader, Search, ValidReader};
-use searcher;
 use util;
 
 pub struct Controller {

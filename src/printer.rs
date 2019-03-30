@@ -7,7 +7,6 @@ use std::str;
 
 use grep::matcher::Match;
 
-use string_util;
 use util;
 
 struct ColoredString {
@@ -81,7 +80,7 @@ impl<W: Write> Printer<W> {
                     self.push_newline();
                 }
 
-                if string_util::is_newline(grapheme) {
+                if util::is_newline(grapheme) {
                     grapheme_count = 0;
                     screen_line_number += 1;
                     self.push_newline();
@@ -112,7 +111,7 @@ impl<W: Write> Printer<W> {
         write(
             &mut self.out,
             &termion::cursor::Goto(
-                (string_util::grapheme_count(&command_line_text[..]) + 1)
+                (util::grapheme_count(&command_line_text[..]) + 1)
                     as u16,
                 screen_height + 1,
             ),

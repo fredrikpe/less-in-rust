@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{
-    self, stdin, BufRead, Cursor, Initializer, Read, Seek, SeekFrom, Stdin,
+    self, Cursor, Read, Seek, SeekFrom,
 };
 use std::str;
 
@@ -11,11 +11,9 @@ use app::InputType;
 use error::{Error, Result};
 use searcher;
 use standard::StandardSink;
-use string_util;
 use utf8_validation;
 use util;
 
-const DEFAULT_BUF_SIZE: usize = 4096;
 
 pub trait Search {
     fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str);
@@ -27,16 +25,12 @@ pub trait FileSwitcher {
 
 pub struct BiBufReader<R> {
     inner: R,
-    pos: usize,
-    cap: usize,
 }
 
 impl<R: Read + Seek> BiBufReader<R> {
     pub fn new(inner: R) -> BiBufReader<R> {
         BiBufReader {
             inner,
-            pos: 0,
-            cap: 0,
         }
     }
 
@@ -64,7 +58,7 @@ impl<R: Read + Seek> BiBufReader<R> {
             let (screen_width, _) = util::screen_width_height();
 
             let offset = size as i64
-                - string_util::nth_last_newline_wrapped(
+                - util::nth_last_newline_wrapped(
                     n + 1,
                     str::from_utf8_unchecked(&buf[..]),
                     screen_width as usize,
@@ -82,7 +76,7 @@ impl<R: Read + Seek> BiBufReader<R> {
         let (screen_width, _) = util::screen_width_height();
 
         unsafe {
-            let newline_offset = string_util::nth_newline_wrapped(
+            let newline_offset = util::nth_newline_wrapped(
                 n,
                 str::from_utf8_unchecked(&buf[..size]),
                 screen_width as usize,
@@ -100,10 +94,8 @@ impl<R: Read + Seek> BiBufReader<R> {
         page_buf.resize(size, 0);
 
         let bytes_read = match self.inner.read(&mut page_buf[..]) {
-            Err(e) => {
-                panic!("asdfasdf");
-                eprintln!("errorrrr {}", e);
-                0
+            Err(_) => {
+                panic!("Fatal error in page generation!");
             }
             Ok(s) => s as i64,
         };
@@ -137,7 +129,7 @@ impl<R: Read + Seek> BiBufReader<R> {
             .seek(SeekFrom::Current((size - bytes_read) as i64))?;
 
         assert_eq!(cur_pos, self.inner.seek(SeekFrom::Current(0))?);
-        Ok(string_util::make_valid(buf))
+        Ok(util::make_valid(buf))
     }
 
     fn make_buf_down(&mut self) -> Result<(Vec<u8>, usize)> {
@@ -191,9 +183,9 @@ impl<R: Search + Seek> Search for BiBufReader<R> {
         // to remeber the current position, go to the beginning (we want to
         // search the entire file), then go back to the original position.
         let cur_pos = self.inner.seek(SeekFrom::Current(0)).unwrap();
-        self.inner.seek(SeekFrom::Start(0));
+        let _ = self.inner.seek(SeekFrom::Start(0));
         self.inner.search(matches, pattern);
-        self.inner.seek(SeekFrom::Start(cur_pos));
+        let _ = self.inner.seek(SeekFrom::Start(cur_pos));
     }
 }
 
