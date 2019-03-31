@@ -25,12 +25,14 @@ pub trait FileSwitcher {
 
 pub struct BiBufReader<R> {
     inner: R,
+    pub wrap: bool,
 }
 
 impl<R: Read + Seek> BiBufReader<R> {
-    pub fn new(inner: R) -> BiBufReader<R> {
+    pub fn new(inner: R, wrap: bool) -> BiBufReader<R> {
         BiBufReader {
             inner,
+            wrap: wrap,
         }
     }
 
@@ -58,10 +60,10 @@ impl<R: Read + Seek> BiBufReader<R> {
             let (screen_width, _) = util::screen_width_height();
 
             let offset = size as i64
-                - util::nth_last_newline_wrapped(
+                - util::nth_last_newline_pos(
                     n + 1,
                     str::from_utf8_unchecked(&buf[..]),
-                    screen_width as usize,
+                    if self.wrap { Some(screen_width as i32) } else { None },
                 ) as i64;
             self.inner.seek(SeekFrom::Current(-(offset as i64)))?;
         }
@@ -76,10 +78,10 @@ impl<R: Read + Seek> BiBufReader<R> {
         let (screen_width, _) = util::screen_width_height();
 
         unsafe {
-            let newline_offset = util::nth_newline_wrapped(
+            let newline_offset = util::nth_newline_pos(
                 n,
                 str::from_utf8_unchecked(&buf[..size]),
-                screen_width as usize,
+                if self.wrap { Some(screen_width as i32) } else { None },
             );
             self.inner.seek(SeekFrom::Current(newline_offset as i64))?;
         }

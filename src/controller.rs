@@ -14,9 +14,9 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn new(input_reader: InputReader) -> Controller {
+    pub fn new(input_reader: InputReader, wrap: bool) -> Controller {
         Controller {
-            reader: BiBufReader::new(ValidReader::new(input_reader)),
+            reader: BiBufReader::new(ValidReader::new(input_reader), wrap),
             quit: false,
             command_line: CommandLine::new(),
             matches: Vec::new(),
@@ -76,6 +76,10 @@ impl Controller {
 
     pub fn command_line_text(&self) -> String {
         return self.command_line.text();
+    }
+
+    pub fn is_wrap(&self) -> bool {
+        self.reader.wrap
     }
 
     fn find_matches(&mut self, pattern: &str) {

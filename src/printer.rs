@@ -8,6 +8,7 @@ use std::str;
 use grep::matcher::Match;
 
 use util;
+use controller::Controller;
 
 struct ColoredString {
     string: String,
@@ -38,13 +39,16 @@ impl<W: Write> Printer<W> {
 
     pub fn render(
         &mut self,
-        page: &(u64, Vec<u8>),
-        matches: &Vec<(u64, Match)>,
-        command_line_text: String,
+        controller: &mut Controller,
     ) -> Result<(), ()> {
         self.clear_screen();
 
-        self.print_page(&page.1, search_offsets(page.0, matches))?;
+        let page = controller.page();
+        let matches = &controller.matches;
+        let command_line_text = controller.command_line_text().clone();
+        let wrap = controller.is_wrap();
+
+        self.print_page(&page.1, search_offsets(page.0, matches), wrap)?;
         self.print_command_line(command_line_text);
         self.flush();
 
@@ -55,6 +59,7 @@ impl<W: Write> Printer<W> {
         &mut self,
         page: &Vec<u8>,
         search_offsets: Vec<u64>,
+        wrap: bool,
     ) -> Result<(), ()> {
         let mut screen_line_number: u16 = 1;
         let (screen_width, screen_height) = util::screen_width_height();
@@ -66,10 +71,10 @@ impl<W: Write> Printer<W> {
 
             write(&mut self.out, &termion::cursor::Goto(1, 1));
 
+            let mut iter = UnicodeSegmentation::grapheme_indices(&page_string[..], true);
             let mut grapheme_count = 0;
-            for (index, grapheme) in
-                UnicodeSegmentation::grapheme_indices(&page_string[..], true)
-            {
+
+            'outer: while let Some((index, grapheme)) = iter.next() {
                 if screen_line_number >= screen_height - 1 {
                     break;
                 }
@@ -77,7 +82,15 @@ impl<W: Write> Printer<W> {
                 if grapheme_count >= screen_width as usize {
                     grapheme_count = 0;
                     screen_line_number += 1;
-                    self.push_newline();
+                    if wrap {
+                        self.push_newline();
+                    } else {
+                        while let Some((index, grapheme)) = iter.next() {
+                            if util::is_newline(grapheme) {
+                                continue 'outer;
+                            }
+                        }
+                    }
                 }
 
                 if util::is_newline(grapheme) {

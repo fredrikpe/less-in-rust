@@ -28,22 +28,18 @@ fn main() {
 
     let input_reader = app.input_reader();
 
-    if let Err(_) = run(input_reader) {
+    if let Err(_) = run(input_reader, !app.matches.is_present("no-wrap")) {
         std::process::exit(1);
     }
 }
 
-fn run(input_file: reader::InputReader) -> Result<(), ()> {
+fn run(input_reader: reader::InputReader, wrap_lines: bool) -> Result<(), ()> {
     let mut printer = printer::Printer::new(stdout().into_raw_mode().unwrap());
 
-    let mut controller = controller::Controller::new(input_file);
+    let mut controller = controller::Controller::new(input_reader, wrap_lines);
 
     loop {
-        let _ = printer.render(
-            &mut controller.page(),
-            &controller.matches,
-            controller.command_line_text().clone(),
-        );
+        let _ = printer.render(&mut controller);
 
         // Blocks, waiting for input.
         // Screen is not redrawn until input is registered.
