@@ -7,8 +7,8 @@ use std::str;
 
 use grep::matcher::Match;
 
-use util;
 use controller::Controller;
+use util;
 
 struct ColoredString {
     string: String,
@@ -37,10 +37,7 @@ impl<W: Write> Printer<W> {
         }
     }
 
-    pub fn render(
-        &mut self,
-        controller: &mut Controller,
-    ) -> Result<(), ()> {
+    pub fn render(&mut self, controller: &mut Controller) -> Result<(), ()> {
         self.clear_screen();
 
         let page = controller.page();
@@ -71,7 +68,8 @@ impl<W: Write> Printer<W> {
 
             write(&mut self.out, &termion::cursor::Goto(1, 1));
 
-            let mut iter = UnicodeSegmentation::grapheme_indices(&page_string[..], true);
+            let mut iter =
+                UnicodeSegmentation::grapheme_indices(&page_string[..], true);
             let mut grapheme_count = 0;
 
             'outer: while let Some((index, grapheme)) = iter.next() {
@@ -124,8 +122,7 @@ impl<W: Write> Printer<W> {
         write(
             &mut self.out,
             &termion::cursor::Goto(
-                (util::grapheme_count(&command_line_text[..]) + 1)
-                    as u16,
+                (util::grapheme_count(&command_line_text[..]) + 1) as u16,
                 screen_height + 1,
             ),
         );

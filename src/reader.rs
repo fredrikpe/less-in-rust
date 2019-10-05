@@ -1,7 +1,5 @@
 use std::fs::File;
-use std::io::{
-    self, Cursor, Read, Seek, SeekFrom,
-};
+use std::io::{self, Cursor, Read, Seek, SeekFrom};
 use std::str;
 
 use grep::matcher::Match;
@@ -13,7 +11,6 @@ use searcher;
 use standard::StandardSink;
 use utf8_validation;
 use util;
-
 
 pub trait Search {
     fn search(&mut self, matches: &mut Vec<(u64, Match)>, pattern: &str);
@@ -30,10 +27,7 @@ pub struct BiBufReader<R> {
 
 impl<R: Read + Seek> BiBufReader<R> {
     pub fn new(inner: R, wrap: bool) -> BiBufReader<R> {
-        BiBufReader {
-            inner,
-            wrap: wrap,
-        }
+        BiBufReader { inner, wrap: wrap }
     }
 
     pub fn jump_offset(&mut self, offset: u64) -> Result<()> {
@@ -63,7 +57,11 @@ impl<R: Read + Seek> BiBufReader<R> {
                 - util::nth_last_newline_pos(
                     n + 1,
                     str::from_utf8_unchecked(&buf[..]),
-                    if self.wrap { Some(screen_width as i32) } else { None },
+                    if self.wrap {
+                        Some(screen_width as i32)
+                    } else {
+                        None
+                    },
                 ) as i64;
             self.inner.seek(SeekFrom::Current(-(offset as i64)))?;
         }
@@ -81,7 +79,11 @@ impl<R: Read + Seek> BiBufReader<R> {
             let newline_offset = util::nth_newline_pos(
                 n,
                 str::from_utf8_unchecked(&buf[..size]),
-                if self.wrap { Some(screen_width as i32) } else { None },
+                if self.wrap {
+                    Some(screen_width as i32)
+                } else {
+                    None
+                },
             );
             self.inner.seek(SeekFrom::Current(newline_offset as i64))?;
         }

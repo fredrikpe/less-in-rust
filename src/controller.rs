@@ -1,4 +1,3 @@
-
 use grep::matcher::Match;
 
 use error::Result;

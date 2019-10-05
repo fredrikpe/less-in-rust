@@ -1,6 +1,3 @@
-#![feature(align_offset)]
-#![feature(read_initializer)]
-
 extern crate clap;
 extern crate grep;
 extern crate libc;

@@ -30,7 +30,7 @@ impl App {
                     .map(|filename| File::open(filename).unwrap())
                     .collect()
             })
-        .unwrap_or_else(|| Vec::new());
+            .unwrap_or_else(|| Vec::new());
 
         return if files.len() > 0 {
             InputReader::new(InputType::Files(files))
@@ -66,19 +66,18 @@ fn clap_app() -> ClapApp<'static, 'static> {
         .long_about("Long about")
         .arg(
             Arg::with_name("FILE")
-            .help("File to view.")
-            .long_help("File to view.")
-            .multiple(true)
-            .empty_values(false),
-            )
+                .help("File to view.")
+                .long_help("File to view.")
+                .multiple(true)
+                .empty_values(false),
+        )
         .arg(
             Arg::with_name("no-wrap")
-            .long("no-wrap")
-            .short("S")
-            .help("Don't wrap long lines.")
-            .long_help("Don't wrap long lines.")
-            )
-
+                .long("no-wrap")
+                .short("S")
+                .help("Don't wrap long lines.")
+                .long_help("Don't wrap long lines."),
+        )
         .help_message("Print this help message.")
         .version_message("Show version information.")
 }

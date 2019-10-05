@@ -1,8 +1,7 @@
-
 use std::i32;
 
-use unicode_segmentation::UnicodeSegmentation;
 use termion::terminal_size;
+use unicode_segmentation::UnicodeSegmentation;
 
 pub fn screen_height_half() -> usize {
     (screen_height() as usize - 1) / 2
@@ -31,7 +30,9 @@ pub fn nth_newline_pos(
     for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
         grapheme_count += 1;
         current_pos = offset + grapheme_size(grapheme);
-        if is_newline(grapheme) || grapheme_count >= screen_width.unwrap_or(i32::MAX) {
+        if is_newline(grapheme)
+            || grapheme_count >= screen_width.unwrap_or(i32::MAX)
+        {
             grapheme_count = 0;
             n -= 1;
             if n == 0 {
@@ -53,7 +54,9 @@ pub fn nth_last_newline_pos(
 
     for (offset, grapheme) in UnicodeSegmentation::grapheme_indices(buf, true) {
         grapheme_count += 1;
-        if is_newline(grapheme) || grapheme_count >= screen_width.unwrap_or(i32::MAX) {
+        if is_newline(grapheme)
+            || grapheme_count >= screen_width.unwrap_or(i32::MAX)
+        {
             grapheme_count = 0;
             offsets.push(Some(offset + grapheme_size(grapheme)));
         }
@@ -106,8 +109,7 @@ mod tests {
         let u = "\naa\n";
         let v = "aaaaaa";
         let w = "\n\n\n\n\n\n\n\n\n\n";
-        let x =
-            "ฤๅหาใครค้ำชูกู้บรรลังก์ ฯ";
+        let x = "ฤๅหาใครค้ำชูกู้บรรลังก์ ฯ";
         assert_eq!(nth_last_newline_pos(2, s, Some(3)), 0);
         assert_eq!(nth_last_newline_pos(2, t, Some(3)), 0);
         assert_eq!(nth_last_newline_pos(2, u, Some(3)), 1);

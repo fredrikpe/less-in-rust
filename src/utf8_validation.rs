@@ -35,8 +35,7 @@ mod tests {
 
     #[test]
     fn test_first_valid_pos() {
-        let s =
-            "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
+        let s = "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
         let b = s.as_bytes();
         assert_eq!(first_valid_pos(b), Some(0));
         assert_eq!(first_valid_pos(&b[1..]), Some(2));
@@ -49,8 +48,7 @@ mod tests {
 
     #[test]
     fn test_utf8_validation() {
-        let s =
-            "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
+        let s = "พระปกเกศกองบู๊กู้ขึ้นใหม่สิบสองกษัตริย์ก่อนหน้";
         let b = s.as_bytes();
         assert_eq!(run_utf8_validation(b), Ok(()));
         assert!(run_utf8_validation(&b[1..]).is_err());
